@@ -101,3 +101,11 @@ jobs:
 
             # run your CI script
             .github/workflows/scripts/ci_build.sh
+
+
+        - name: upload build artifacts
+          if: always()
+          uses: actions/upload-artifact@v4
+          with:
+            name: ml-sdk-windows-build
+            path: ${{ env.INSTALL_DIR }}
