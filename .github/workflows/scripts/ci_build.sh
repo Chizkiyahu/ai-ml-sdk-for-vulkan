@@ -51,8 +51,6 @@ elif [[ "$(uname)" == MINGW* ]]; then
   cores=$( powershell -NoProfile -Command "(Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors")
   echo "MINGW detected, disabling repo verification"
   NO_REPO_VERIFY="--no-repo-verify"
-  echo "MINGW detected, skipping Emulation Layer and Scenarion Runner tests"
-  SR_EL_TEST_OPT=""
 else
   cores=$(nproc)
 fi

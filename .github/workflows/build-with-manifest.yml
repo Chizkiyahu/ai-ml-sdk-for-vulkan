@@ -71,7 +71,7 @@ jobs:
         - name: Install tools with Chocolatey
           shell: pwsh
           run: |
-            choco install -y doxygen.install xmlstarlet graphviz vulkan-sdk
+            choco install -y doxygen.install xmlstarlet graphviz
             
             $chocoBin = "C:\ProgramData\chocolatey\bin"
             $chocoBin | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
