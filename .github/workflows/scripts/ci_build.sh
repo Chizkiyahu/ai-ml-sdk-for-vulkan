@@ -64,7 +64,7 @@ REPO_DIR="$(realpath "$REPO_DIR")"
 INSTALL_DIR="$(realpath "$INSTALL_DIR")"
 pushd $REPO_DIR
 
-repo init $NO_REPO_VERIFY -u "$MANIFEST_URL"
+repo init $NO_REPO_VERIFY -u "$MANIFEST_URL" -g emulation-layer
 repo sync $NO_REPO_VERIFY --no-clone-bundle -j "$cores"
 
 mkdir -p .repo/local_manifests
@@ -118,11 +118,11 @@ EOF
   repo sync -j "$cores" --force-sync "$PROJECT_PATH"
 fi
 
-echo "Build VGF-Lib"
-./sw/vgf-lib/scripts/build.py -j "$cores" --doc --test
-
-echo "Build Model Converter"
-./sw/model-converter/scripts/build.py -j "$cores" --doc --test
+#echo "Build VGF-Lib"
+#./sw/vgf-lib/scripts/build.py -j "$cores" --doc --test
+#
+#echo "Build Model Converter"
+#./sw/model-converter/scripts/build.py -j "$cores" --doc --test
 
 echo "Build Emulation Layer"
 
@@ -138,10 +138,10 @@ export VK_INSTANCE_LAYERS=VK_LAYER_ML_Graph_Emulation:VK_LAYER_ML_Tensor_Emulati
 export LD_LIBRARY_PATH=$INSTALL_DIR/lib
 ./sw/emulation-layer/scripts/build.py -j "$cores" --doc $SR_EL_TEST_OPT --install $INSTALL_DIR
 
-echo "Build Scenario Runner"
-./sw/scenario-runner/scripts/build.py -j "$cores" --doc $SR_EL_TEST_OPT
-
-echo "Build SDK Root"
-./scripts/build.py -j "$cores" --doc
+#echo "Build Scenario Runner"
+#./sw/scenario-runner/scripts/build.py -j "$cores" --doc $SR_EL_TEST_OPT
+#
+#echo "Build SDK Root"
+#./scripts/build.py -j "$cores" --doc
 
 popd
