@@ -125,7 +125,15 @@ echo "Build Model Converter"
 ./sw/model-converter/scripts/build.py -j "$cores" --doc --test
 
 echo "Build Emulation Layer"
-export VK_LAYER_PATH=$INSTALL_DIR/share/vulkan/explicit_layer.d
+
+if [[ "$(uname)" == MINGW* ]]; then
+  win_install_dir=$(cygpath -w "$INSTALL_DIR")
+
+  # Add Vulkan explicit layer registry entry
+  cmd.exe /c "reg add \"HKLM\SOFTWARE\Khronos\Vulkan\ExplicitLayers\" /v \"${win_install_dir}\\bin\" /t REG_DWORD /d 0 /f"
+else
+  export VK_LAYER_PATH=$INSTALL_DIR/share/vulkan/explicit_layer.d
+fi
 export VK_INSTANCE_LAYERS=VK_LAYER_ML_Graph_Emulation:VK_LAYER_ML_Tensor_Emulation
 export LD_LIBRARY_PATH=$INSTALL_DIR/lib
 ./sw/emulation-layer/scripts/build.py -j "$cores" --doc $SR_EL_TEST_OPT --install $INSTALL_DIR
