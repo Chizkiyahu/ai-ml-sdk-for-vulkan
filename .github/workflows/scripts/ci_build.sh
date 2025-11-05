@@ -129,6 +129,7 @@ echo "Build Emulation Layer"
 if [[ "$(uname)" == MINGW* ]]; then
   win_install_dir=$(cygpath -w "$INSTALL_DIR")
 
+  echo "Setting up Vulkan layer registry on Windows at ${win_install_dir}\\bin"
   # Add Vulkan explicit layer registry entry
   cmd.exe /c "reg add \"HKLM\SOFTWARE\Khronos\Vulkan\ExplicitLayers\" /v \"${win_install_dir}\\bin\" /t REG_DWORD /d 0 /f"
 else
@@ -136,6 +137,11 @@ else
 fi
 export VK_INSTANCE_LAYERS=VK_LAYER_ML_Graph_Emulation:VK_LAYER_ML_Tensor_Emulation
 export LD_LIBRARY_PATH=$INSTALL_DIR/lib
+./sw/emulation-layer/scripts/build.py -j "$cores" --doc --install $INSTALL_DIR
+if [[ "$(uname)" == MINGW* ]]; then
+  echo "ls ${win_install_dir}\\bin"
+  cmd.exe /c "dir \"${win_install_dir}\\bin\""
+fi
 ./sw/emulation-layer/scripts/build.py -j "$cores" --doc $SR_EL_TEST_OPT --install $INSTALL_DIR
 
 #echo "Build Scenario Runner"
