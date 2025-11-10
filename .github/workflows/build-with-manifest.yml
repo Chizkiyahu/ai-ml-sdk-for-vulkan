@@ -74,10 +74,17 @@ jobs:
         - name: Vulkan-Tools
           shell: bash
           run: |
+            git clone https://github.com/KhronosGroup/Vulkan-Headers.git
+            cd Vulkan-Headers
+            cmake -S . -B build
+            cmake --install build --prefix build/install
+            cd ..
+            export VULKAN_HEADERS_DIR="$PWD/Vulkan-Headers/build/install/include"
             git clone https://github.com/KhronosGroup/Vulkan-Tools.git
             cd Vulkan-Tools
             cmake -S . -B build
-            cmake --install build/ --config Release --prefix build/install
+            cmake --install build/ --config Release --prefix build/install -- \
+              -DVULKAN_HEADERS_INSTALL_DIR="$VULKAN_HEADERS_DIR"
             # install_dir/bin : The Mock ICD and JSON
             # find the json file and register it
             ls build/install/bin/
