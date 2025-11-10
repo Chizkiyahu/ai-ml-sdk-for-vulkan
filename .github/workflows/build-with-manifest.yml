@@ -5,6 +5,9 @@
 name: Build ML SDK
 
 on:
+  push:
+    branches:
+      - ci_win_t1
   workflow_dispatch:
   workflow_call:
     inputs:
@@ -99,22 +102,20 @@ jobs:
             cmake --build build --config Release
             cmake --install build --config Release --prefix "$PWD/build/install"
             
-            # 5) Find the JSON ICD and register it in Windows registry
-            ls build/install/bin/ || true
-            ls build/bin/ || true
             
-            json_file=$(find build/install/bin/ -name "*.json" | head -n 1)
-            if [ -z "$json_file" ]; then
-              echo "No JSON ICD file found under build/install/bin"
-              exit 1
-            fi
             
-            VULKAN_ICD_PATH=$(wslpath -w "$json_file")
-            echo "VULKAN_ICD_PATH=$VULKAN_ICD_PATH"
-            
-            MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe add "HKLM\\SOFTWARE\\Khronos\\Vulkan\\Drivers" /v "$VULKAN_ICD_PATH" /t REG_DWORD /d 0
-        
-        
+#            VULKAN_ICD_PATH=$(wslpath -w "$json_file")
+#            echo "VULKAN_ICD_PATH=$VULKAN_ICD_PATH"
+#
+#            MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe add "HKLM\\SOFTWARE\\Khronos\\Vulkan\\Drivers" /v "$VULKAN_ICD_PATH" /t REG_DWORD /d 0
+#
+#
+        - name: upload Vulkan-Tools artifacts
+          if: always()
+          uses: actions/upload-artifact@v5
+          with:
+            name: vulkan-tools-windows
+            path: ${{ env.GITHUB_WORKSPACE }}/Vulkan-Tools/build/install
 
         - name: Set up Python
           uses: actions/setup-python@v5
