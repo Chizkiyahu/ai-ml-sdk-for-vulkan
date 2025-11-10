@@ -82,7 +82,6 @@ jobs:
         - name: Run CI build script
           shell: bash
           run: |
-#            xmlstarlet --version
             cmd.exe /c "reg.exe add \"HKLM\System\CurrentControlSet\Control\FileSystem\" /v LongPathsEnabled /t REG_DWORD /d 1 /f"
             git config --global core.longpaths true
           
