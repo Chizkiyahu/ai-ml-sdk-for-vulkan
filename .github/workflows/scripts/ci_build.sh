@@ -134,14 +134,12 @@ if [[ "$(uname)" == MINGW* ]]; then
   # Convert INSTALL_DIR to Windows style (D:\a\...)
   win_install_dir=$(cygpath -w "$INSTALL_DIR")
 
-  graph_json_win="${win_install_dir}\\bin\\VkLayer_Graph.json"
-  tensor_json_win="${win_install_dir}\\bin\\VkLayer_Tensor.json"
+  bin_folder="${win_install_dir}\\bin"
   reg_key='HKLM\SOFTWARE\Khronos\Vulkan\ExplicitLayers'
   reg_key_lm='HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ExplicitLayers'
 
   echo "Setting up Vulkan layer registry on Windows"
-  echo "Graph manifest:  $graph_json_win"
-  echo "Tensor manifest: $tensor_json_win"
+  echo "bin folder: $bin_folder"
 
   # helper: run a Windows reg.exe command via cmd.exe /c with proper quoting
   reg_add_windows() {
@@ -155,10 +153,8 @@ if [[ "$(uname)" == MINGW* ]]; then
     cmd.exe /c "$cmdline"
   }
 
-  reg_add_windows "$reg_key" "$graph_json_win"
-  reg_add_windows "$reg_key" "$tensor_json_win"
-  reg_add_windows "$reg_key_lm" "$graph_json_win"
-  reg_add_windows "$reg_key_lm" "$tensor_json_win"
+  reg_add_windows "$reg_key" "$bin_folder"
+  reg_add_windows "$reg_key_lm" "$bin_folder"
 
   # Make sure the DLLs are on PATH
   export PATH="$INSTALL_DIR/bin:$PATH"
