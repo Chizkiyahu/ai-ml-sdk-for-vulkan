@@ -65,18 +65,31 @@ jobs:
         - name: Register SwiftShader ICD in Vulkan registry
           shell: powershell
           run: |
-            $regPath = "HKLM:\SOFTWARE\Khronos\Vulkan\Drivers"
-            if (-not (Test-Path $regPath)) {
-              New-Item -Path "HKLM:\SOFTWARE\Khronos\Vulkan" -Name "Drivers" | Out-Null
+            $root = "HKLM:\SOFTWARE"
+            $khronos = Join-Path $root "Khronos"
+            if (-not (Test-Path $khronos)) {
+              New-Item -Path $root -Name "Khronos" -ItemType Key | Out-Null
             }
-  
-            # get the path from the action output
-            $swiftshader = "${{ steps.vulkan.outputs.swiftshader-install-path }}"
-            $icdJson = Join-Path $swiftshader "vk_swiftshader_icd.json"
-  
-            # write it as a DWORD=0, value name = full path to json
-            New-ItemProperty -Path $regPath -Name $icdJson -PropertyType DWord -Value 0 -Force | Out-Null
 
+            $vulkan = Join-Path $khronos "Vulkan"
+            if (-not (Test-Path $vulkan)) {
+              New-Item -Path $khronos -Name "Vulkan" -ItemType Key | Out-Null
+            }
+
+            $drivers = Join-Path $vulkan "Drivers"
+            if (-not (Test-Path $drivers)) {
+              New-Item -Path $vulkan -Name "Drivers" -ItemType Key | Out-Null
+            }
+
+            # this is the one from the action output
+            $swiftshader = "${{ steps.vulkan.outputs.swiftshader-install-path }}"
+            # the ICD json lives in that folder
+            $icdJson = Join-Path $swiftshader "vk_swiftshader_icd.json"
+
+            # register it
+            New-ItemProperty -Path $drivers -Name $icdJson -PropertyType DWord -Value 0 -Force | Out-Null
+        
+        
 
         - name: Set up Python
           uses: actions/setup-python@v5
