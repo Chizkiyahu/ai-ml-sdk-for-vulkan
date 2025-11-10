@@ -135,7 +135,7 @@ if [[ "$(uname)" == MINGW* ]]; then
   win_install_dir=$(cygpath -w "$INSTALL_DIR")
 
   bin_folder="${win_install_dir}\\bin"
-  reg_key='HKEY_CURRENT_USER\SOFTWARE\Khronos\Vulkan\ExplicitLayers'
+#  reg_key='HKEY_CURRENT_USER\SOFTWARE\Khronos\Vulkan\ExplicitLayers'
   reg_key_lm='HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ExplicitLayers'
 
   echo "Setting up Vulkan layer registry on Windows"
@@ -153,8 +153,8 @@ if [[ "$(uname)" == MINGW* ]]; then
     cmd.exe /c "$cmdline"
   }
 
-  reg_add_windows "$reg_key" "$bin_folder"
-  MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe query "$reg_key" /reg:64
+#  reg_add_windows "$reg_key" "$bin_folder"
+#  MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe query "$reg_key" /reg:64
 
 
   reg_add_windows "$reg_key_lm" "$bin_folder"
