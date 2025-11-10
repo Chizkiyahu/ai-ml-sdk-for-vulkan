@@ -107,14 +107,6 @@ jobs:
             echo "VULKAN_ICD_PATH=$VULKAN_ICD_PATH"
             MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe add "HKLM\\SOFTWARE\\Khronos\\Vulkan\\Drivers" /v "$VULKAN_ICD_PATH" /t REG_DWORD /d 0
 
-
-        - name: upload Vulkan-Tools artifacts
-          if: always()
-          uses: actions/upload-artifact@v5
-          with:
-            name: vulkan-tools-windows
-            path: ./Vulkan-Tools/build
-
         - name: Set up Python
           uses: actions/setup-python@v5
           with:
