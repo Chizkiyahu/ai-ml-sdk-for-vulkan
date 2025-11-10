@@ -8,6 +8,7 @@ set -o errexit
 set -o pipefail
 set -o errtrace
 set -o nounset
+set -o xtrace
 
 usage() {
   echo "Usage: $(basename "$0")"
@@ -40,19 +41,34 @@ echo "find CHANGED_REPO: $CHANGED_REPO"
 echo "find CHANGED_SHA: $CHANGED_SHA"
 echo "find OVERRIDES: $OVERRIDES"
 
-# for Darwin compatibility
-if ! command -v nproc >/dev/null 2>&1; then
-  nproc() { sysctl -n hw.ncpu; }
+SR_EL_TEST_OPT="--test"
+NO_REPO_VERIFY=""
+
+if [ "$(uname)" = "Darwin" ]; then
+  cores=$(sysctl -n hw.ncpu)
+  echo "Darwin detected, skipping Emulation Layer and Scenarion Runner tests"
+  SR_EL_TEST_OPT=""
+elif [[ "$(uname)" == MINGW* ]]; then
+  cores=$( powershell -NoProfile -Command "(Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors")
+  echo "MINGW detected, disabling repo verification"
+  NO_REPO_VERIFY="--no-repo-verify"
+  echo "MINGW detected, skipping Emulation Layer and Scenarion Runner tests"
+  SR_EL_TEST_OPT=""
+else
+  cores=$(nproc)
 fi
 
+echo "Detected uname: $(uname)"
+echo "CPUs: $cores"
+
 mkdir -p $REPO_DIR
+mkdir -p $INSTALL_DIR
 REPO_DIR="$(realpath "$REPO_DIR")"
 INSTALL_DIR="$(realpath "$INSTALL_DIR")"
 pushd $REPO_DIR
 
-repo init -u $MANIFEST_URL
-# --force-sync to ensure we get latest even if there are local changes when re-running
-repo sync --no-clone-bundle -j $(nproc) --force-sync
+repo init $NO_REPO_VERIFY -u "$MANIFEST_URL"
+repo sync $NO_REPO_VERIFY --no-clone-bundle -j "$cores"
 
 mkdir -p .repo/local_manifests
 
@@ -77,7 +93,7 @@ if [ -n "$OVERRIDES" ]; then
 EOF
 
     echo "Syncing $NAME ($PROJECT_PATH)"
-    repo sync -j"$(nproc)" --force-sync "$PROJECT_PATH"
+    repo sync -j "$cores" --force-sync "$PROJECT_PATH"
   done
 
 elif [ -n "$CHANGED_REPO" ]; then
@@ -102,7 +118,7 @@ elif [ -n "$CHANGED_REPO" ]; then
 EOF
 
   # Re-sync the changed project to the specified SHA
-  repo sync -j $(nproc) --force-sync "$PROJECT_PATH"
+  repo sync -j "$cores" --force-sync "$PROJECT_PATH"
 fi
 
 run_checks() {
@@ -121,11 +137,11 @@ fi
 
 echo "Build VGF-Lib"
 run_checks ./sw/vgf-lib
-./sw/vgf-lib/scripts/build.py -j $(nproc) --doc --test
+./sw/vgf-lib/scripts/build.py -j "$cores" --doc --test
 
 echo "Build Model Converter"
 run_checks ./sw/model-converter
-./sw/model-converter/scripts/build.py -j $(nproc) --doc --test
+./sw/model-converter/scripts/build.py -j "$cores" --doc --test
 
 export VK_LAYER_PATH=$INSTALL_DIR/share/vulkan/explicit_layer.d
 export VK_INSTANCE_LAYERS=VK_LAYER_ML_Graph_Emulation:VK_LAYER_ML_Tensor_Emulation
@@ -133,14 +149,14 @@ export LD_LIBRARY_PATH=$INSTALL_DIR/lib
 
 echo "Build Emulation Layer"
 run_checks ./sw/emulation-layer
-./sw/emulation-layer/scripts/build.py -j $(nproc) --doc $SR_EL_TEST_OPT --install $INSTALL_DIR
+./sw/emulation-layer/scripts/build.py -j "$cores" --doc $SR_EL_TEST_OPT --install $INSTALL_DIR
 
 echo "Build Scenario Runner"
 run_checks ./sw/scenario-runner
-./sw/scenario-runner/scripts/build.py -j $(nproc) --doc $SR_EL_TEST_OPT
+./sw/scenario-runner/scripts/build.py -j "$cores" --doc $SR_EL_TEST_OPT
 
 echo "Build SDK Root"
 run_checks .
-./scripts/build.py -j $(nproc) --doc
+./scripts/build.py -j "$cores" --doc
 
 popd
