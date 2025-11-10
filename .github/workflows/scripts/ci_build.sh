@@ -131,35 +131,37 @@ export VK_LOADER_DEBUG="all"
 echo "Build Emulation Layer"
 
 if [[ "$(uname)" == MINGW* ]]; then
-  # Make sure the directory exists (should be true after build.py, but this is cheap)
-  mkdir -p "$INSTALL_DIR/bin"
-
-  # Convert just INSTALL_DIR to Windows style, then append bin\*.json
+  # Convert INSTALL_DIR to Windows style (D:\a\...)
   win_install_dir=$(cygpath -w "$INSTALL_DIR")
 
   graph_json_win="${win_install_dir}\\bin\\VkLayer_Graph.json"
   tensor_json_win="${win_install_dir}\\bin\\VkLayer_Tensor.json"
+  reg_key="HKLM\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers"
 
   echo "Setting up Vulkan layer registry on Windows"
   echo "Graph manifest:  $graph_json_win"
   echo "Tensor manifest: $tensor_json_win"
 
-  # Write the registry entries for the explicit layers
-  reg.exe add "HKLM\SOFTWARE\Khronos\Vulkan\ExplicitLayers" \
-      /v "$graph_json_win" \
-      /t REG_DWORD /d 0 /f
+  # First reg.exe call
+  cmd1=(reg.exe add "$reg_key" /v "$graph_json_win" /t REG_DWORD /d 0 /f)
+  printf 'Running: %q ' "${cmd1[@]}"; printf '\n'
+  "${cmd1[@]}"
 
-  reg.exe add "HKLM\SOFTWARE\Khronos\Vulkan\ExplicitLayers" \
-      /v "$tensor_json_win" \
-      /t REG_DWORD /d 0 /f
+  # Second reg.exe call
+  cmd2=(reg.exe add "$reg_key" /v "$tensor_json_win" /t REG_DWORD /d 0 /f)
+  printf 'Running: %q ' "${cmd2[@]}"; printf '\n'
+  "${cmd2[@]}"
 
-  # Ensure the DLLs are on PATH for tests
+  # Make sure the DLLs are on PATH
   export PATH="$INSTALL_DIR/bin:$PATH"
 else
   export VK_LAYER_PATH="$INSTALL_DIR/share/vulkan/explicit_layer.d"
   export LD_LIBRARY_PATH="$INSTALL_DIR/lib"
 fi
+
+# Still needs to match the "name" fields in VkLayer_*.json
 export VK_INSTANCE_LAYERS=VK_LAYER_ML_Graph_Emulation:VK_LAYER_ML_Tensor_Emulation
+
 ./sw/emulation-layer/scripts/build.py -j "$cores" --doc $SR_EL_TEST_OPT --install $INSTALL_DIR
 
 #echo "Build Scenario Runner"
