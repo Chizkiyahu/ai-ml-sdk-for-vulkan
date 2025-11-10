@@ -56,6 +56,11 @@ jobs:
           with:
             arch: amd64
 
+        - name: Setup Vulkan for CI
+          uses: NcStudios/VulkanCI@v1
+          with:
+              sdkVersion: 1.4.309.0
+
         - name: Set up Python
           uses: actions/setup-python@v5
           with:
