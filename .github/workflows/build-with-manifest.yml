@@ -115,7 +115,7 @@ jobs:
           uses: actions/upload-artifact@v5
           with:
             name: vulkan-tools-windows
-            path: ./Vulkan-Tools/build/install
+            path: ./Vulkan-Tools/build
 
         - name: Set up Python
           uses: actions/setup-python@v5
