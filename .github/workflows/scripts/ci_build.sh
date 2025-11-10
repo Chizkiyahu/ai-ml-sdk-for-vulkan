@@ -162,8 +162,8 @@ fi
 # Still needs to match the "name" fields in VkLayer_*.json
 export VK_INSTANCE_LAYERS=VK_LAYER_ML_Graph_Emulation:VK_LAYER_ML_Tensor_Emulation
 
-./sw/emulation-layer/scripts/build.py -j "$cores" --doc $SR_EL_TEST_OPT --install $INSTALL_DIR
-
+./sw/emulation-layer/scripts/build.py -j "$cores"  $SR_EL_TEST_OPT --install $INSTALL_DIR
+# --doc
 #echo "Build Scenario Runner"
 #./sw/scenario-runner/scripts/build.py -j "$cores" --doc $SR_EL_TEST_OPT
 #
