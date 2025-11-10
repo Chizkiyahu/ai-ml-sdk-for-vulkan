@@ -74,27 +74,47 @@ jobs:
         - name: Vulkan-Tools
           shell: bash
           run: |
+            # 1) Get and install Vulkan-Headers
             git clone https://github.com/KhronosGroup/Vulkan-Headers.git
             cd Vulkan-Headers
             cmake -S . -B build
-            cmake --install build --prefix build/install
+            cmake --install build --prefix "$PWD/build/install"
             cd ..
-            export VULKAN_HEADERS_DIR="$PWD/Vulkan-Headers/build/install/include"
+            
+            # This is where CMake config files now live:
+            # $PWD/Vulkan-Headers/build/install/share/cmake/VulkanHeaders/VulkanHeadersConfig.cmake
+            export VULKAN_HEADERS_INSTALL_DIR="$PWD/Vulkan-Headers/build/install"
+            export VULKAN_HEADERS_INCLUDE_DIR="$VULKAN_HEADERS_INSTALL_DIR/include"
+            
+            # 2) Get Vulkan-Tools
             git clone https://github.com/KhronosGroup/Vulkan-Tools.git
             cd Vulkan-Tools
-            cmake -S . -B build
-            cmake --install build/ --config Release --prefix build/install -- \
-              -DVULKAN_HEADERS_INSTALL_DIR="$VULKAN_HEADERS_DIR"
-            # install_dir/bin : The Mock ICD and JSON
-            # find the json file and register it
-            ls build/install/bin/
-            ls build/bin/
-            json_file=$(find build/install/bin/ -name "*.json")
-            # windows path conversion 
+            
+            # 3) Configure Vulkan-Tools and tell it where Vulkan-Headers is
+            cmake -S . -B build \
+              -DCMAKE_PREFIX_PATH="$VULKAN_HEADERS_INSTALL_DIR" \
+              -DVULKAN_HEADERS_INSTALL_DIR="$VULKAN_HEADERS_INSTALL_DIR"
+            
+            # 4) Build and install Vulkan-Tools
+            cmake --build build --config Release
+            cmake --install build --config Release --prefix "$PWD/build/install"
+            
+            # 5) Find the JSON ICD and register it in Windows registry
+            ls build/install/bin/ || true
+            ls build/bin/ || true
+            
+            json_file=$(find build/install/bin/ -name "*.json" | head -n 1)
+            if [ -z "$json_file" ]; then
+              echo "No JSON ICD file found under build/install/bin"
+              exit 1
+            fi
+            
             VULKAN_ICD_PATH=$(wslpath -w "$json_file")
             echo "VULKAN_ICD_PATH=$VULKAN_ICD_PATH"
-            MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe add "HKLM\SOFTWARE\Khronos\Vulkan\Drivers" /v "$VULKAN_ICD_PATH" /t REG_DWORD /d 0 /f
-
+            
+            MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe add "HKLM\\SOFTWARE\\Khronos\\Vulkan\\Drivers" /v "$VULKAN_ICD_PATH" /t REG_DWORD /d 0
+        
+        
 
         - name: Set up Python
           uses: actions/setup-python@v5
