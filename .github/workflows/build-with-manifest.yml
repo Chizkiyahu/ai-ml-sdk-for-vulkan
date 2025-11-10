@@ -102,14 +102,12 @@ jobs:
             cmake --build build --config Release
             cmake --install build --config Release --prefix "$PWD/build/install"
             
-            
-            
-#            VULKAN_ICD_PATH=$(wslpath -w "$json_file")
-#            echo "VULKAN_ICD_PATH=$VULKAN_ICD_PATH"
-#
-#            MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe add "HKLM\\SOFTWARE\\Khronos\\Vulkan\\Drivers" /v "$VULKAN_ICD_PATH" /t REG_DWORD /d 0
-#
-#
+            json_file='./icd/Release/VkICD_mock_icd.json'
+            VULKAN_ICD_PATH=$(wslpath -w "$json_file")
+            echo "VULKAN_ICD_PATH=$VULKAN_ICD_PATH"
+            MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe add "HKLM\\SOFTWARE\\Khronos\\Vulkan\\Drivers" /v "$VULKAN_ICD_PATH" /t REG_DWORD /d 0
+
+
         - name: upload Vulkan-Tools artifacts
           if: always()
           uses: actions/upload-artifact@v5
