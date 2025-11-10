@@ -102,7 +102,7 @@ jobs:
             cmake --build build --config Release
             cmake --install build --config Release --prefix "$PWD/build/install"
             
-            json_file='./icd/Release/VkICD_mock_icd.json'
+            json_file='$PWD/build/icd/Release/VkICD_mock_icd.json'
             VULKAN_ICD_PATH=$(cygpath -w "$json_file")
             echo "VULKAN_ICD_PATH=$VULKAN_ICD_PATH"
             MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe add "HKLM\\SOFTWARE\\Khronos\\Vulkan\\Drivers" /v "$VULKAN_ICD_PATH" /t REG_DWORD /d 0
