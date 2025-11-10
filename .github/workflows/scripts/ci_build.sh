@@ -131,22 +131,27 @@ export VK_LOADER_DEBUG="all"
 echo "Build Emulation Layer"
 
 if [[ "$(uname)" == MINGW* ]]; then
-  win_install_dir=$(cygpath -w "$INSTALL_DIR")
+  # INSTALL_DIR is still a Unix-style path like /d/a/.../install
+  echo "Setting up Vulkan layer registry on Windows at $INSTALL_DIR/bin"
 
-  echo "Setting up Vulkan layer registry on Windows at ${win_install_dir}\\bin"
-  # Add Vulkan explicit layer registry entry
-  manifest_graph="${win_install_dir}\\bin\\VkLayer_Graph.json"
-  manifest_tensor="${win_install_dir}\\bin\\VkLayer_Tensor.json"
+  # Convert just the JSON paths to Windows style
+  graph_json_win=$(cygpath -w "$INSTALL_DIR/bin/VkLayer_Graph.json")
+  tensor_json_win=$(cygpath -w "$INSTALL_DIR/bin/VkLayer_Tensor.json")
 
   echo "Setting up Vulkan layer registry on Windows"
-  cmd.exe /c "reg add \"HKLM\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers\" /v \"${manifest_graph}\" /t REG_DWORD /d 0 /f /reg:64"
-  cmd.exe /c "reg add \"HKLM\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers\" /v \"${manifest_tensor}\" /t REG_DWORD /d 0 /f /reg:64"
+  reg.exe add "HKLM\SOFTWARE\Khronos\Vulkan\ExplicitLayers" \
+      /v "$graph_json_win" \
+      /t REG_DWORD /d 0 /f /reg:64
 
-  # More useful than LD_LIBRARY_PATH on Windows:
-  export PATH=\"$INSTALL_DIR/bin:$PATH\"
+  reg.exe add "HKLM\SOFTWARE\Khronos\Vulkan\ExplicitLayers" \
+      /v "$tensor_json_win" \
+      /t REG_DWORD /d 0 /f /reg:64
+
+  # Make sure the DLLs are on PATH for the tests
+  export PATH="$INSTALL_DIR/bin:$PATH"
 else
-  export VK_LAYER_PATH=$INSTALL_DIR/share/vulkan/explicit_layer.d
-  export LD_LIBRARY_PATH=$INSTALL_DIR/lib
+  export VK_LAYER_PATH="$INSTALL_DIR/share/vulkan/explicit_layer.d"
+  export LD_LIBRARY_PATH="$INSTALL_DIR/lib"
 fi
 export VK_INSTANCE_LAYERS=VK_LAYER_ML_Graph_Emulation:VK_LAYER_ML_Tensor_Emulation
 ./sw/emulation-layer/scripts/build.py -j "$cores" --doc $SR_EL_TEST_OPT --install $INSTALL_DIR
