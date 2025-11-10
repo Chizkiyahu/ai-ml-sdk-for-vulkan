@@ -136,21 +136,26 @@ if [[ "$(uname)" == MINGW* ]]; then
 
   graph_json_win="${win_install_dir}\\bin\\VkLayer_Graph.json"
   tensor_json_win="${win_install_dir}\\bin\\VkLayer_Tensor.json"
-  reg_key="HKLM\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers"
+  reg_key='HKLM\SOFTWARE\Khronos\Vulkan\ExplicitLayers'
 
   echo "Setting up Vulkan layer registry on Windows"
   echo "Graph manifest:  $graph_json_win"
   echo "Tensor manifest: $tensor_json_win"
 
-  # First reg.exe call
-  cmd1=(reg.exe add "$reg_key" /v "$graph_json_win" /t REG_DWORD /d 0 /f)
-  printf 'Running: %q ' "${cmd1[@]}"; printf '\n'
-  "${cmd1[@]}"
+  # helper: run a Windows reg.exe command via cmd.exe /c with proper quoting
+  reg_add_windows() {
+    local key="$1"
+    local value="$2"
+    # Build a single Windows-style command line and hand it to cmd.exe.
+    # Use double-quotes around key and value so reg.exe sees them correctly.
+    local cmdline
+    cmdline="reg.exe add \"${key}\" /v \"${value}\" /t REG_DWORD /d 0 /f"
+    printf 'Running: %s\n' "$cmdline"
+    cmd.exe /c "$cmdline"
+  }
 
-  # Second reg.exe call
-  cmd2=(reg.exe add "$reg_key" /v "$tensor_json_win" /t REG_DWORD /d 0 /f)
-  printf 'Running: %q ' "${cmd2[@]}"; printf '\n'
-  "${cmd2[@]}"
+  reg_add_windows "$reg_key" "$graph_json_win"
+  reg_add_windows "$reg_key" "$tensor_json_win"
 
   # Make sure the DLLs are on PATH
   export PATH="$INSTALL_DIR/bin:$PATH"
@@ -158,6 +163,7 @@ else
   export VK_LAYER_PATH="$INSTALL_DIR/share/vulkan/explicit_layer.d"
   export LD_LIBRARY_PATH="$INSTALL_DIR/lib"
 fi
+
 
 # Still needs to match the "name" fields in VkLayer_*.json
 export VK_INSTANCE_LAYERS=VK_LAYER_ML_Graph_Emulation:VK_LAYER_ML_Tensor_Emulation
