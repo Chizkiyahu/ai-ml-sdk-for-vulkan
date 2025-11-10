@@ -62,15 +62,31 @@ jobs:
 #          with:
 #            install_runtime: true
 
-        - name: Setup Vulkan for CI
-          id: vulkan
-          uses: NcStudios/VulkanCI@v1.2
-          with:
-            sdkVersion: 1.4.309.0
-
-        - name: Register SwiftShader ICD in Vulkan registry
-          run: reg add "HKLM\SOFTWARE\Khronos\Vulkan\Drivers" /v "${{ steps.vulkan.outputs.swiftshader-install-path }}\vk_swiftshader_icd.json" /t REG_DWORD /d 0 /f
-
+#        - name: Setup Vulkan for CI
+#          id: vulkan
+#          uses: NcStudios/VulkanCI@v1.2
+#          with:
+#            sdkVersion: 1.4.309.0
+#
+#        - name: Register SwiftShader ICD in Vulkan registry
+#          run: reg add "HKLM\SOFTWARE\Khronos\Vulkan\Drivers" /v "${{ steps.vulkan.outputs.swiftshader-install-path }}\vk_swiftshader_icd.json" /t REG_DWORD /d 0 /f
+#
+        - name: Vulkan-Tools
+          shell: bash
+          run: |
+            git clone https://github.com/KhronosGroup/Vulkan-Tools.git
+            cd Vulkan-Tools
+            cmake -S . -B build
+            cmake --install build/ --config Release --prefix build/install
+            # install_dir/bin : The Mock ICD and JSON
+            # find the json file and register it
+            ls build/install/bin/
+            ls build/bin/
+            json_file=$(find build/install/bin/ -name "*.json")
+            # windows path conversion 
+            VULKAN_ICD_PATH=$(wslpath -w "$json_file")
+            echo "VULKAN_ICD_PATH=$VULKAN_ICD_PATH"
+            MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe add "HKLM\SOFTWARE\Khronos\Vulkan\Drivers" /v "$VULKAN_ICD_PATH" /t REG_DWORD /d 0 /f
 
 
         - name: Set up Python
