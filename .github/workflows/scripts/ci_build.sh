@@ -135,30 +135,13 @@ if [[ "$(uname)" == MINGW* ]]; then
   win_install_dir=$(cygpath -w "$INSTALL_DIR")
 
   bin_folder="${win_install_dir}\\bin"
-#  reg_key='HKEY_CURRENT_USER\SOFTWARE\Khronos\Vulkan\ExplicitLayers'
-  reg_key_lm='HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ExplicitLayers'
+  reg_key='HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ExplicitLayers'
 
   echo "Setting up Vulkan layer registry on Windows"
   echo "bin folder: $bin_folder"
 
-  # helper: run a Windows reg.exe command via cmd.exe /c with proper quoting
-  reg_add_windows() {
-    local key="$1"
-    local value="$2"
-    # Build a single Windows-style command line and hand it to cmd.exe.
-    # Use double-quotes around key and value so reg.exe sees them correctly.
-    local cmdline
-    cmdline="reg.exe add \"${key}\" /v \"${value}\" /t REG_DWORD /d 0 /f"
-    printf 'Running: %s\n' "$cmdline"
-    cmd.exe /c "$cmdline"
-  }
-
-#  reg_add_windows "$reg_key" "$bin_folder"
-#  MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe query "$reg_key" /reg:64
-
-
-  reg_add_windows "$reg_key_lm" "$bin_folder"
-  MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe query "$reg_key_lm" /reg:64
+  MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe add "$reg_key" /v "$bin_folder" /t REG_DWORD /d 0 /f
+  MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe query "$reg_key" /reg:64
 
 
   # Make sure the DLLs are on PATH
