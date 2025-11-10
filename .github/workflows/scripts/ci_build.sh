@@ -135,7 +135,7 @@ if [[ "$(uname)" == MINGW* ]]; then
   win_install_dir=$(cygpath -w "$INSTALL_DIR")
 
   bin_folder="${win_install_dir}\\bin"
-  reg_key='HKLM\SOFTWARE\Khronos\Vulkan\ExplicitLayers'
+  reg_key='HKEY_CURRENT_USER\SOFTWARE\Khronos\Vulkan\ExplicitLayers'
   reg_key_lm='HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ExplicitLayers'
 
   echo "Setting up Vulkan layer registry on Windows"
@@ -153,8 +153,21 @@ if [[ "$(uname)" == MINGW* ]]; then
     cmd.exe /c "$cmdline"
   }
 
+  # helper: query the value we just wrote (64-bit view)
+  reg_query_windows() {
+    local key="$1"
+    local value="$2"
+    local cmdline
+    cmdline="reg.exe query \"${key}\" /v \"${value}\" /reg:64"
+    printf 'Querying: %s\n' "$cmdline"
+    cmd.exe /c "$cmdline"
+  }
+
   reg_add_windows "$reg_key" "$bin_folder"
+  reg_query_windows "$reg_key" "$bin_folder"
+
   reg_add_windows "$reg_key_lm" "$bin_folder"
+  reg_query_windows "$reg_key_lm" "$bin_folder"
 
   # Make sure the DLLs are on PATH
   export PATH="$INSTALL_DIR/bin:$PATH"
