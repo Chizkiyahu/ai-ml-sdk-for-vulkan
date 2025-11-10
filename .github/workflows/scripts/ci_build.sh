@@ -10,6 +10,11 @@ set -o errtrace
 set -o nounset
 set -o xtrace
 
+export VMEL_GRAPH_SEVERITY="debug"
+export VMEL_TENSOR_SEVERITY="debug"
+export VMEL_COMMON_SEVERITY="debug"
+export VK_LOADER_DEBUG="all"
+
 usage() {
   echo "Usage: $(basename "$0")"
   echo
@@ -53,8 +58,6 @@ elif [[ "$os" == MINGW* ]]; then
   cores=$( powershell -NoProfile -Command "(Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors")
   echo "MINGW detected, disabling repo verification"
   NO_REPO_VERIFY="--no-repo-verify"
-  echo "MINGW detected, skipping Emulation Layer and Scenarion Runner tests"
-  SR_EL_TEST_OPT=""
 else
   cores=$(nproc)
 fi
@@ -142,9 +145,21 @@ echo "Build Model Converter"
 run_checks ./sw/model-converter
 ./sw/model-converter/scripts/build.py -j "$cores" --doc --test
 
-export VK_LAYER_PATH=$INSTALL_DIR/share/vulkan/explicit_layer.d
+if [[ "$(uname)" == MINGW* ]]; then
+  win_install_dir=$(cygpath -w "$INSTALL_DIR")
+  bin_folder="${win_install_dir}\\bin"
+  reg_key='HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ExplicitLayers'
+
+  echo "Setting up Vulkan layer registry on Windows"
+  MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe add "$reg_key" /v "$bin_folder" /t REG_DWORD /d 0 /f
+  MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe query "$reg_key" /reg:64
+  export PATH="$INSTALL_DIR/bin:$PATH"
+else
+  export VK_LAYER_PATH=$INSTALL_DIR/share/vulkan/explicit_layer.d
+  export LD_LIBRARY_PATH=$INSTALL_DIR/lib
+fi
 export VK_INSTANCE_LAYERS=VK_LAYER_ML_Graph_Emulation:VK_LAYER_ML_Tensor_Emulation
-export LD_LIBRARY_PATH=$INSTALL_DIR/lib
+
 
 echo "Build Emulation Layer"
 run_checks ./sw/emulation-layer

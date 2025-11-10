@@ -56,6 +56,35 @@ jobs:
           with:
             arch: amd64
 
+        - name: Vulkan-Tools
+          shell: bash
+          run: |
+            git clone https://github.com/KhronosGroup/Vulkan-Headers.git
+            cd Vulkan-Headers
+            cmake -S . -B build
+            cmake --install build --prefix "$PWD/build/install"
+            cd ..
+            
+            # This is where CMake config files now live:
+            # $PWD/Vulkan-Headers/build/install/share/cmake/VulkanHeaders/VulkanHeadersConfig.cmake
+            export VULKAN_HEADERS_INSTALL_DIR="$PWD/Vulkan-Headers/build/install"
+            export VULKAN_HEADERS_INCLUDE_DIR="$VULKAN_HEADERS_INSTALL_DIR/include"
+            
+            git clone https://github.com/KhronosGroup/Vulkan-Tools.git
+            cd Vulkan-Tools
+            
+            cmake -S . -B build \
+              -DCMAKE_PREFIX_PATH="$VULKAN_HEADERS_INSTALL_DIR" \
+              -DVULKAN_HEADERS_INSTALL_DIR="$VULKAN_HEADERS_INSTALL_DIR"
+            
+            cmake --build build --config Release
+            cmake --install build --config Release --prefix "$PWD/build/install"
+            
+            json_file="$PWD/build/icd/Release/VkICD_mock_icd.json"
+            VULKAN_ICD_PATH=$(cygpath -w "$json_file")
+            echo "VULKAN_ICD_PATH=$VULKAN_ICD_PATH"
+            MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe add "HKLM\SOFTWARE\Khronos\Vulkan\Drivers" /v "$VULKAN_ICD_PATH" /t REG_DWORD /d 0 /f
+
         - name: Set up Python
           uses: actions/setup-python@v5
           with:
