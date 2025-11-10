@@ -124,6 +124,10 @@ fi
 #echo "Build Model Converter"
 #./sw/model-converter/scripts/build.py -j "$cores" --doc --test
 
+export VMEL_GRAPH_SEVERITY="debug"
+export VMEL_TENSOR_SEVERITY="debug"
+export VMEL_COMMON_SEVERITY="debug"
+export VK_LOADER_DEBUG="all"
 echo "Build Emulation Layer"
 
 if [[ "$(uname)" == MINGW* ]]; then
