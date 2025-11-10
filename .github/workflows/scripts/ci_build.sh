@@ -154,13 +154,15 @@ if [[ "$(uname)" == MINGW* ]]; then
   }
 
   # helper: query the value we just wrote (64-bit view)
-  reg_query_windows() {
+  reg_check_windows() {
     local key="$1"
-    local value="$2"
-    local cmdline
-    cmdline="reg.exe query \"${key}\" /v \"${value}\" /reg:64"
-    printf 'Querying: %s\n' "$cmdline"
-    cmd.exe /c "$cmdline"
+
+    printf 'Dumping registry key: %s\n' "$key"
+    # Print everything under the key
+    cmd.exe /c reg.exe query "$key" /reg:64 || {
+      echo "reg query failed with exit code $?"
+      return
+    }
   }
 
   reg_add_windows "$reg_key" "$bin_folder"
