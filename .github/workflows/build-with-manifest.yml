@@ -57,7 +57,7 @@ jobs:
             arch: amd64
 
         - name: Setup Vulkan for CI
-          uses: NcStudios/VulkanCI@v1
+          uses: NcStudios/VulkanCI@v1.2
           with:
               sdkVersion: 1.4.309.0
 
