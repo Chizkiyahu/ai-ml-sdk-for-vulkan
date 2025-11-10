@@ -135,18 +135,20 @@ if [[ "$(uname)" == MINGW* ]]; then
 
   echo "Setting up Vulkan layer registry on Windows at ${win_install_dir}\\bin"
   # Add Vulkan explicit layer registry entry
-  cmd.exe /c "reg add \"HKLM\SOFTWARE\Khronos\Vulkan\ExplicitLayers\" /v \"${win_install_dir}\\bin\" /t REG_DWORD /d 0 /f"
-  export LD_LIBRARY_PATH=$INSTALL_DIR/bin
+  manifest_graph="${win_install_dir}\\bin\\VkLayer_Graph.json"
+  manifest_tensor="${win_install_dir}\\bin\\VkLayer_Tensor.json"
+
+  echo "Setting up Vulkan layer registry on Windows"
+  cmd.exe /c "reg add \"HKLM\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers\" /v \"${manifest_graph}\" /t REG_DWORD /d 0 /f /reg:64"
+  cmd.exe /c "reg add \"HKLM\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers\" /v \"${manifest_tensor}\" /t REG_DWORD /d 0 /f /reg:64"
+
+  # More useful than LD_LIBRARY_PATH on Windows:
+  export PATH=\"$INSTALL_DIR/bin:$PATH\"
 else
   export VK_LAYER_PATH=$INSTALL_DIR/share/vulkan/explicit_layer.d
   export LD_LIBRARY_PATH=$INSTALL_DIR/lib
 fi
 export VK_INSTANCE_LAYERS=VK_LAYER_ML_Graph_Emulation:VK_LAYER_ML_Tensor_Emulation
-./sw/emulation-layer/scripts/build.py -j "$cores" --doc --install $INSTALL_DIR
-if [[ "$(uname)" == MINGW* ]]; then
-  echo "ls ${win_install_dir}\\bin"
-  cmd.exe /c "dir \"${win_install_dir}\\bin\""
-fi
 ./sw/emulation-layer/scripts/build.py -j "$cores" --doc $SR_EL_TEST_OPT --install $INSTALL_DIR
 
 #echo "Build Scenario Runner"
