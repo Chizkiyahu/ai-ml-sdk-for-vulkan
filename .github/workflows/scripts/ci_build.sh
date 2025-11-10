@@ -153,23 +153,13 @@ if [[ "$(uname)" == MINGW* ]]; then
     cmd.exe /c "$cmdline"
   }
 
-  # helper: query the value we just wrote (64-bit view)
-  reg_check_windows() {
-    local key="$1"
-
-    printf 'Dumping registry key: %s\n' "$key"
-    # Print everything under the key
-    cmd.exe /c reg.exe query "$key" /reg:64 || {
-      echo "reg query failed with exit code $?"
-      return
-    }
-  }
-
   reg_add_windows "$reg_key" "$bin_folder"
-  reg_check_windows "$reg_key" "$bin_folder"
+  MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe query "$reg_key" /reg:64
+
 
   reg_add_windows "$reg_key_lm" "$bin_folder"
-  reg_check_windows "$reg_key_lm" "$bin_folder"
+  MSYS2_ARG_CONV_EXCL='*' cmd.exe /c reg.exe query "$reg_key_lm" /reg:64
+
 
   # Make sure the DLLs are on PATH
   export PATH="$INSTALL_DIR/bin:$PATH"
