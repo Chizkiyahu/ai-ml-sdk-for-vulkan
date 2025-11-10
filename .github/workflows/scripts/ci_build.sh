@@ -43,12 +43,13 @@ echo "find OVERRIDES: $OVERRIDES"
 
 SR_EL_TEST_OPT="--test"
 NO_REPO_VERIFY=""
+os="$(uname)"
 
-if [ "$(uname)" = "Darwin" ]; then
+if [ "$os" = "Darwin" ]; then
   cores=$(sysctl -n hw.ncpu)
   echo "Darwin detected, skipping Emulation Layer and Scenarion Runner tests"
   SR_EL_TEST_OPT=""
-elif [[ "$(uname)" == MINGW* ]]; then
+elif [[ "$os" == MINGW* ]]; then
   cores=$( powershell -NoProfile -Command "(Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors")
   echo "MINGW detected, disabling repo verification"
   NO_REPO_VERIFY="--no-repo-verify"
@@ -58,7 +59,7 @@ else
   cores=$(nproc)
 fi
 
-echo "Detected uname: $(uname)"
+echo "Detected os: $os"
 echo "CPUs: $cores"
 
 mkdir -p $REPO_DIR
@@ -123,17 +124,15 @@ fi
 
 run_checks() {
   pushd "${1}"
-  git show -s --format=%B HEAD | grep "Signed-off-by:"
-  pre-commit run --all-files --hook-stage commit --show-diff-on-failure
-  pre-commit run --all-files --hook-stage push --show-diff-on-failure
+  if [ "$os" = "Linux" ]; then
+    git show -s --format=%B HEAD | grep "Signed-off-by:"
+    pre-commit run --all-files --hook-stage commit --show-diff-on-failure
+    pre-commit run --all-files --hook-stage push --show-diff-on-failure
+  else
+    echo "Skipping pre-commit checks on $os"
+  fi
   popd
 }
-
-SR_EL_TEST_OPT="--test"
-if [ "$(uname)" = "Darwin" ]; then
-    echo "Darwin detected, skipping Emulation Layer and Scenarion Runner tests"
-    SR_EL_TEST_OPT=""
-fi
 
 echo "Build VGF-Lib"
 run_checks ./sw/vgf-lib
