@@ -166,10 +166,10 @@ if [[ "$(uname)" == MINGW* ]]; then
   }
 
   reg_add_windows "$reg_key" "$bin_folder"
-  reg_query_windows "$reg_key" "$bin_folder"
+  reg_check_windows "$reg_key" "$bin_folder"
 
   reg_add_windows "$reg_key_lm" "$bin_folder"
-  reg_query_windows "$reg_key_lm" "$bin_folder"
+  reg_check_windows "$reg_key_lm" "$bin_folder"
 
   # Make sure the DLLs are on PATH
   export PATH="$INSTALL_DIR/bin:$PATH"
