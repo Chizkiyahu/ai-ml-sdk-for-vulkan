@@ -56,40 +56,22 @@ jobs:
           with:
             arch: amd64
 
-        - name: Setup Vulkan for CI
-          id: vulkan
-          uses: NcStudios/VulkanCI@v1.2
+
+        - name: Install Vulkan SDK
+          uses: jakoch/install-vulkan-sdk-action@v1
           with:
-            sdkVersion: 1.4.309.0
+            install_runtime: true
 
-        - name: Register SwiftShader ICD in Vulkan registry
-          shell: powershell
-          run: |
-            $root = "HKLM:\SOFTWARE"
-            $khronos = Join-Path $root "Khronos"
-            if (-not (Test-Path $khronos)) {
-              New-Item -Path $root -Name "Khronos" -ItemType Key | Out-Null
-            }
-
-            $vulkan = Join-Path $khronos "Vulkan"
-            if (-not (Test-Path $vulkan)) {
-              New-Item -Path $khronos -Name "Vulkan" -ItemType Key | Out-Null
-            }
-
-            $drivers = Join-Path $vulkan "Drivers"
-            if (-not (Test-Path $drivers)) {
-              New-Item -Path $vulkan -Name "Drivers" -ItemType Key | Out-Null
-            }
-
-            # this is the one from the action output
-            $swiftshader = "${{ steps.vulkan.outputs.swiftshader-install-path }}"
-            # the ICD json lives in that folder
-            $icdJson = Join-Path $swiftshader "vk_swiftshader_icd.json"
-
-            # register it
-            New-ItemProperty -Path $drivers -Name $icdJson -PropertyType DWord -Value 0 -Force | Out-Null
-        
-        
+#        - name: Setup Vulkan for CI
+#          id: vulkan
+#          uses: NcStudios/VulkanCI@v1.2
+#          with:
+#            sdkVersion: 1.4.309.0
+#
+#        - name: Register SwiftShader ICD in Vulkan registry
+#          run: reg add "HKLM\SOFTWARE\Khronos\Vulkan\Drivers" /v "${{ steps.vulkan.outputs.swiftshader-install-path }}\vk_swiftshader_icd.json" /t REG_DWORD /d 0 /f
+#
+#
 
         - name: Set up Python
           uses: actions/setup-python@v5
