@@ -85,6 +85,13 @@ else
     echo "pip: mako already installed"
 fi
 
+echo "==> Install python PyYAML "
+if ! pip3 show PyYAML >/dev/null 2>&1; then
+    pip3 install PyYAML
+else
+    echo "pip: PyYAML already installed"
+fi
+
 echo "==> Fetching Mesa source: ${MESA_SRC_DIR}"
 if [ ! -d "${MESA_SRC_DIR}" ]; then
     mkdir -p "$(dirname "${MESA_SRC_DIR}")"

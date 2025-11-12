@@ -61,28 +61,10 @@ jobs:
 
       - name: build lavapipe
         run: |
-          pip install PyYAML
           .github/workflows/scripts/build_lavapipe_macos.zsh
           echo MESA_LAVAPIPE_PREFIX="/Users/runner/.local/mesa-lavapipe" >> "$GITHUB_ENV"
           echo VK_DRIVER_FILES="/Users/runner/.local/mesa-lavapipe/share/vulkan/icd.d/lvp_icd.aarch64.json" >> "$GITHUB_ENV"
           echo VK_ICD_FILENAMES="/Users/runner/.local/mesa-lavapipe/share/vulkan/icd.d/lvp_icd.aarch64.json" >> "$GITHUB_ENV"
-
-#      - name: Install Vulkan SDK
-#        uses: jakoch/install-vulkan-sdk-action@v1
-#
-#      - name: Configure Vulkan env
-#        run: |
-#           ls -l /Users/runner/lavapipe
-#          echo "VULKAN_SDK=$VULKAN_SDK"
-#          echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
-#          ICD_JSON="$(echo "$HOME/lavapipe"/share/vulkan/icd.d/*.json | awk '{print $1}')"
-#          echo "VK_ICD_FILENAMES=$ICD_JSON" >> "$GITHUB_ENV"
-#          export VK_LAYER_PATH="$VULKAN_SDK/macOS/share/vulkan/explicit_layer.d"
-#          # Make the env visible to later steps
-#          {
-#            echo "VK_ICD_FILENAMES=$VK_ICD_FILENAMES"
-#            echo "VK_LAYER_PATH=$VK_LAYER_PATH"
-#          } >> $GITHUB_ENV
 
       - name: Verify Vulkan installation
         run: |
