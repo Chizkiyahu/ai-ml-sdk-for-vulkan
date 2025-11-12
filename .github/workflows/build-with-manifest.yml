@@ -69,7 +69,7 @@ jobs:
 
       - name: brew install
         run: |
-          brew install xmlstarlet repo
+          brew install doxygen xmlstarlet repo 
 
       - name: Clone repositories and build
         env:
