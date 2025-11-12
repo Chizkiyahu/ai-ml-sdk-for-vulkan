@@ -60,7 +60,7 @@ jobs:
 
       - name: Configure Vulkan env
         run: |
-          echo ls -l ./lavapipe
+          echo ls -l /Users/runner/lavapipe
 #          echo "VULKAN_SDK=$VULKAN_SDK"
 #          echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
 #          ICD_JSON="$(echo "$HOME/lavapipe"/share/vulkan/icd.d/*.json | awk '{print $1}')"
