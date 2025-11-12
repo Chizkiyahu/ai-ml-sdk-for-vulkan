@@ -69,7 +69,12 @@ jobs:
 
       - name: brew install
         run: |
-          brew install clang-format@17 doxygen repo xmlstarlet
+          brew install doxygen repo xmlstarlet
+
+      - name: Install clang-format 14 (macOS)
+        run: |
+          brew install llvm@14
+          echo "$(brew --prefix llvm@14)/bin" >> "$GITHUB_PATH"
 
       - name: Clone repositories and build
         env:
