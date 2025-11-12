@@ -63,13 +63,13 @@ jobs:
           uses: jakoch/install-vulkan-sdk-action@v1
           with:
             install_runtime: true
-            install_swiftshader: true
+            install_lavapipe: true
 
         - name: set Vulkan registry for SwiftShader ICD
           shell: pwsh
           run: |
-            ls "C:\Swiftshader"
-            reg add "HKLM\SOFTWARE\Khronos\Vulkan\Drivers" /v "C:\Swiftshader\vk_swiftshader_icd.json" /t REG_DWORD /d 0 /f
+            ls "C:\lavapipe\share\vulkan\icd.d\"
+            reg add "HKLM\SOFTWARE\Khronos\Vulkan\Drivers" /v "C:\lavapipe\share\vulkan\icd.d\lvp_icd.x86_64.json" /t REG_DWORD /d 0 /f
 
         - name: Set up Python
           uses: actions/setup-python@v5
@@ -103,6 +103,9 @@ jobs:
             reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpFolder /t REG_EXPAND_SZ /d "$DumpFolder" /f
             reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpType /t REG_DWORD /d 2 /f
             reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpCount /t REG_DWORD /d 10 /f
+            reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps\ml_emulation_tests.exe" /f
+            reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps\ml_emulation_tests.exe" /v DumpType /t REG_DWORD /d 2 /f
+
 
         - name: Run CI build script
           shell: bash
