@@ -50,68 +50,54 @@ jobs:
 #        run: .github/workflows/scripts/ci_build.sh
 
   build-windows:
-      runs-on: windows-latest
-      steps:
-        - uses: actions/checkout@v4
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
 
-        - name: Set up MSVC (Developer Command Prompt)
-          uses: ilammy/msvc-dev-cmd@v1
-          with:
-            arch: amd64
+      - name: Set up MSVC (Developer Command Prompt)
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: amd64
 
-        - name: Install Vulkan SDK
-          uses: jakoch/install-vulkan-sdk-action@v1
-          with:
-            install_runtime: true
-            install_lavapipe: true
+      - name: Install Vulkan SDK
+        uses: jakoch/install-vulkan-sdk-action@v1
+        with:
+          install_runtime: true
+          install_lavapipe: true
 
-        - name: set Vulkan registry for lavapipe ICD
-          shell: pwsh
-          run: |
-            ls "C:\lavapipe\share\vulkan\icd.d\"
-            reg add "HKLM\SOFTWARE\Khronos\Vulkan\Drivers" /v "C:\lavapipe\share\vulkan\icd.d\lvp_icd.x86_64.json" /t REG_DWORD /d 0 /f
+      - name: Set Vulkan registry for lavapipe ICD
+        shell: pwsh
+        run: |
+          Get-ChildItem "C:\lavapipe\share\vulkan\icd.d\"
+          reg.exe add "HKLM\SOFTWARE\Khronos\Vulkan\Drivers" /v "C:\lavapipe\share\vulkan\icd.d\lvp_icd.x86_64.json" /t REG_DWORD /d 0 /f
 
-        - name: Set up Python
-          uses: actions/setup-python@v5
-          with:
-            python-version: '3.11'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-        - name: install Python dependencies
-          shell: bash
-          run: |
-            python -m pip install --upgrade pip
-            pip install -r ./requirements.txt
+      - name: Install Python dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ./requirements.txt
 
-        - name: Install tools with Chocolatey
-          shell: pwsh
-          run: |
-            choco install -y xmlstarlet
-            
-            $chocoBin = "C:\ProgramData\chocolatey\bin"
-            $chocoBin | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
-            Copy-Item "$chocoBin\xml.exe" "$chocoBin\xmlstarlet.exe" -Force
-            & "$chocoBin\xmlstarlet.exe" --version
+      - name: Install tools with Chocolatey
+        shell: pwsh
+        run: |
+          choco install -y xmlstarlet
+          xml.exe --version
 
+      - name: Run CI build script (PowerShell, Windows only)
+        shell: pwsh
+        run: |
+          # Enable long paths
+          reg.exe add "HKLM\System\CurrentControlSet\Control\FileSystem" /v LongPathsEnabled /t REG_DWORD /d 1 /f
+          git config --global core.longpaths true
+  
+          # Clone git-repo (Python script)
+          git clone https://gerrit.googlesource.com/git-repo "$env:GITHUB_WORKSPACE/git-repo"
+  
+          # Run the PowerShell CI script
+          & "$env:GITHUB_WORKSPACE/.github/workflows/scripts/ci_build.ps1"
 
-        - name: Run CI build script
-          shell: bash
-          run: |
-            cmd.exe /c "reg.exe add \"HKLM\System\CurrentControlSet\Control\FileSystem\" /v LongPathsEnabled /t REG_DWORD /d 1 /f"
-            git config --global core.longpaths true
-          
-            # clone repo tool into the same drive as the workspace (GITHUB_WORKSPACE is on D:)
-            git clone https://gerrit.googlesource.com/git-repo "$GITHUB_WORKSPACE/git-repo"
-
-            # create a wrapper executable called `repo` in workspace and put it on PATH
-            mkdir -p "$GITHUB_WORKSPACE/.local/bin"
-            
-            cat > "$GITHUB_WORKSPACE/.local/bin/repo" <<'EOF'
-            #!/usr/bin/env bash
-            python "$GITHUB_WORKSPACE/git-repo/repo" "$@"
-            EOF
-            
-            chmod +x "$GITHUB_WORKSPACE/.local/bin/repo"
-            export PATH="$GITHUB_WORKSPACE/.local/bin:$PATH"
-
-            # run your CI script
-            .github/workflows/scripts/ci_build.sh
