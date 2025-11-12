@@ -12,6 +12,7 @@ if ($args.Count -gt 0 -and ($args[0] -eq "-h" -or $args[0] -eq "--help")) {
     Write-Host "Usage: $scriptName"
     Write-Host
     Write-Host "Environment:"
+    Write-Host "  REPO           (required)  path to the 'repo' Python script"
     Write-Host "  MANIFEST_URL   (optional)  default: https://github.com/arm/ai-ml-sdk-manifest.git"
     Write-Host "  REPO_DIR       (optional)  default: ./sdk"
     Write-Host "  INSTALL_DIR    (optional)  default: ./install"
@@ -28,6 +29,7 @@ $InstallDir  = if ($env:INSTALL_DIR)  { $env:INSTALL_DIR }  else { Join-Path (Ge
 $ChangedRepo = $env:CHANGED_REPO
 $ChangedSha  = $env:CHANGED_SHA
 $Overrides   = $env:OVERRIDES
+$RepoEnvPath = $env:REPO
 
 Write-Host "Using manifest URL: $ManifestUrl"
 Write-Host "Using repo directory: $RepoDir"
@@ -37,19 +39,18 @@ Write-Host "find CHANGED_SHA: $ChangedSha"
 Write-Host "find OVERRIDES: $Overrides"
 
 $cores = (Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors
-
 Write-Host "CPUs: $cores"
-Write-Host "Windows detected, disabling repo verification"
-Write-Host "Windows detected, skipping Emulation Layer and Scenario Runner tests"
 
-# Locate git-repo Python script
-if (-not $env:GITHUB_WORKSPACE) {
-    Write-Error "GITHUB_WORKSPACE is not set. ci_build.ps1 expects to run inside GitHub Actions."
+if (-not $RepoEnvPath) {
+    Write-Error "REPO environment variable must be set to the path of the 'repo' script."
 }
-$RepoScriptPath = Join-Path $env:GITHUB_WORKSPACE "git-repo\repo"
-if (-not (Test-Path $RepoScriptPath)) {
-    Write-Error "git-repo script not found at $RepoScriptPath. Clone https://gerrit.googlesource.com/git-repo there before running."
+
+if (-not (Test-Path -LiteralPath $RepoEnvPath)) {
+    Write-Error "The REPO path '$RepoEnvPath' does not exist. Please provide a valid path."
 }
+
+$RepoScriptPath = (Resolve-Path -LiteralPath $RepoEnvPath).Path
+Write-Host "Using repo script path: $RepoScriptPath"
 
 mkdir $RepoDir -Force
 mkdir $InstallDir -Force
@@ -129,7 +130,6 @@ try {
 
     }
 
-    $env:VK_LAYER_PATH = Join-Path $InstallDir "share/vulkan/explicit_layer.d"
     $env:VK_INSTANCE_LAYERS = "VK_LAYER_ML_Graph_Emulation:VK_LAYER_ML_Tensor_Emulation"
     $env:LD_LIBRARY_PATH = Join-Path $InstallDir "lib"
 

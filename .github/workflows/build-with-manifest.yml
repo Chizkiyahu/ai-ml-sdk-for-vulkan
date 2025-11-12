@@ -73,8 +73,6 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
 
       - name: Install Python dependencies
         shell: pwsh
@@ -88,16 +86,21 @@ jobs:
           choco install -y xmlstarlet
           xml.exe --version
 
-      - name: Run CI build script (PowerShell, Windows only)
+      - name: git long paths enable
         shell: pwsh
         run: |
-          # Enable long paths
           reg.exe add "HKLM\System\CurrentControlSet\Control\FileSystem" /v LongPathsEnabled /t REG_DWORD /d 1 /f
           git config --global core.longpaths true
-  
-          # Clone git-repo (Python script)
-          git clone https://gerrit.googlesource.com/git-repo "$env:GITHUB_WORKSPACE/git-repo"
-  
-          # Run the PowerShell CI script
+
+      - name: git-repo tool
+        shell: pwsh
+        run: |
+          git clone https://gerrit.googlesource.com/git-repo
+
+      - name: Run CI build script
+        shell: pwsh
+        env:
+          REPO: .\git-repo\repo
+        run: |
           & "$env:GITHUB_WORKSPACE/.github/workflows/scripts/ci_build.ps1"
 
