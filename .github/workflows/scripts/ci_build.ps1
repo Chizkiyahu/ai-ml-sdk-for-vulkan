@@ -37,10 +37,8 @@ Write-Host "find CHANGED_SHA: $ChangedSha"
 Write-Host "find OVERRIDES: $Overrides"
 
 # Windows-only behavior (equivalent to MINGW branch)
-
 $cores = (Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors
-$SrElTestOpt = ""                 # skip Emulation Layer and Scenario Runner tests
-$NoRepoVerify = "--no-repo-verify"
+$SrElTestOpt = ""  # skip Emulation Layer and Scenario Runner tests
 
 Write-Host "CPUs: $cores"
 Write-Host "Windows detected, disabling repo verification"
@@ -73,9 +71,7 @@ $RepoDir    = (Resolve-Path $RepoDir).Path
 $InstallDir = (Resolve-Path $InstallDir).Path
 
 function Run-Checks {
-    param(
-        [string]$Path
-    )
+    param([string]$Path)
     Push-Location $Path
     try {
         Write-Host "Skipping pre-commit checks on Windows"
@@ -86,33 +82,10 @@ function Run-Checks {
 
 Push-Location $RepoDir
 try {
-    #
-    # repo init (via python repo)
-    #
-    $initArgs = @(
-        $RepoScriptPath,
-        "init"
-    )
-    if ($NoRepoVerify) {
-        $initArgs += $NoRepoVerify
-    }
-    $initArgs += "-u"
-    $initArgs += $ManifestUrl
+    $initArgs = @($RepoScriptPath, "init", "--no-repo-verify", "-u", $ManifestUrl)
     python @initArgs
 
-    #
-    # repo sync (initial)
-    #
-    $syncArgs = @(
-        $RepoScriptPath,
-        "sync"
-    )
-    if ($NoRepoVerify) {
-        $syncArgs += $NoRepoVerify
-    }
-    $syncArgs += "--no-clone-bundle"
-    $syncArgs += "-j"
-    $syncArgs += $cores
+    $syncArgs = @($RepoScriptPath, "sync", "--no-repo-verify", "--no-clone-bundle","-j",$cores)
     python @syncArgs
 
     #
@@ -124,11 +97,7 @@ try {
         #
         # OVERRIDES: JSON object: { "org/repo": "sha", ... }
         #
-        $manifestArgs = @(
-            $RepoScriptPath,
-            "manifest",
-            "-r"
-        )
+        $manifestArgs = @($RepoScriptPath, "manifest", "-r")
         $manifestText = python @manifestArgs
         $manifestXml = $manifestText -join "`n"
 
@@ -177,11 +146,7 @@ try {
             Write-Error "CHANGED_REPO is set but CHANGED_SHA is empty"
         }
 
-        $manifestArgs = @(
-            $RepoScriptPath,
-            "manifest",
-            "-r"
-        )
+        $manifestArgs = @($RepoScriptPath, "manifest", "-r")
         $manifestText = python @manifestArgs
         $manifestXml = $manifestText -join "`n"
 
@@ -232,11 +197,7 @@ try {
 
     Write-Host "Build Emulation Layer"
     Run-Checks "./sw/emulation-layer"
-    $elArgs = @(
-        "./sw/emulation-layer/scripts/build.py",
-        "-j",
-        $cores
-    )
+    $elArgs = @("./sw/emulation-layer/scripts/build.py", "-j", $cores)
     if ($SrElTestOpt) {
         $elArgs += $SrElTestOpt
     }
@@ -245,11 +206,7 @@ try {
 
     Write-Host "Build Scenario Runner"
     Run-Checks "./sw/scenario-runner"
-    $srArgs = @(
-        "./sw/scenario-runner/scripts/build.py",
-        "-j",
-        $cores
-    )
+    $srArgs = @("./sw/scenario-runner/scripts/build.py", "-j", $cores)
     if ($SrElTestOpt) {
         $srArgs += $SrElTestOpt
     }
