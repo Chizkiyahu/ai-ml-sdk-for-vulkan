@@ -46,6 +46,7 @@ if ! command -v nproc >/dev/null 2>&1; then
 fi
 
 mkdir -p $REPO_DIR
+mkdir -p $INSTALL_DIR
 REPO_DIR="$(realpath "$REPO_DIR")"
 INSTALL_DIR="$(realpath "$INSTALL_DIR")"
 pushd $REPO_DIR
@@ -113,12 +114,6 @@ run_checks() {
   popd
 }
 
-SR_EL_TEST_OPT="--test"
-if [ "$(uname)" = "Darwin" ]; then
-    echo "Darwin detected, skipping Emulation Layer and Scenarion Runner tests"
-    SR_EL_TEST_OPT=""
-fi
-
 echo "Build VGF-Lib"
 run_checks ./sw/vgf-lib
 ./sw/vgf-lib/scripts/build.py -j $(nproc) --doc --test
@@ -133,11 +128,11 @@ export LD_LIBRARY_PATH=$INSTALL_DIR/lib
 
 echo "Build Emulation Layer"
 run_checks ./sw/emulation-layer
-./sw/emulation-layer/scripts/build.py -j $(nproc) --doc $SR_EL_TEST_OPT --install $INSTALL_DIR
+./sw/emulation-layer/scripts/build.py -j $(nproc) --doc --test --install $INSTALL_DIR
 
 echo "Build Scenario Runner"
 run_checks ./sw/scenario-runner
-./sw/scenario-runner/scripts/build.py -j $(nproc) --doc $SR_EL_TEST_OPT
+./sw/scenario-runner/scripts/build.py -j $(nproc) --doc --test
 
 echo "Build SDK Root"
 run_checks .

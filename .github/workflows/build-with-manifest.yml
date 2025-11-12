@@ -5,6 +5,9 @@
 name: Build ML SDK
 
 on:
+  push:
+    branches:
+      - macos_ci
   workflow_dispatch:
   workflow_call:
     inputs:
@@ -14,6 +17,13 @@ on:
 permissions:
   contents: read
   packages: read
+
+env:
+  MANIFEST_URL: https://github.com/${{ github.repository_owner }}/ai-ml-sdk-manifest.git
+  REPO_DIR: ${{ github.workspace }}/sdk
+  INSTALL_DIR: ${{ github.workspace }}/install
+  CHANGED_REPO: ${{ inputs.changed_repo }}
+  CHANGED_SHA: ${{ inputs.changed_sha }}
 
 jobs:
   build:
@@ -37,10 +47,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Clone repositories and build
+        run: .github/workflows/scripts/ci_build.sh
+
+  build_macos:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Vulkan SDK
+        uses: jakoch/install-vulkan-sdk-action@v1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ./requirements.txt
+          pip install -r ./tooling-requirements.txt
+
+      - name: brew install
+        run: |
+          brew install xmlstarlet repo
+
+      - name: Clone repositories and build
         env:
-          MANIFEST_URL: https://github.com/${{ github.repository_owner }}/ai-ml-sdk-manifest.git
-          REPO_DIR:     ${{ github.workspace }}/sdk
-          INSTALL_DIR:  ${{ github.workspace }}/install
-          CHANGED_REPO: ${{ inputs.changed_repo }}
-          CHANGED_SHA:  ${{ inputs.changed_sha }}
+          VMEL_GRAPH_SEVERITY: debug
+          VMEL_TENSOR_SEVERITY: debug
+          VMEL_COMMON_SEVERITY: debug
+          VK_LOADER_DEBUG: all
         run: .github/workflows/scripts/ci_build.sh
