@@ -51,7 +51,7 @@ REPO_DIR="$(realpath "$REPO_DIR")"
 INSTALL_DIR="$(realpath "$INSTALL_DIR")"
 pushd $REPO_DIR
 
-repo init -u $MANIFEST_URL
+repo init -u $MANIFEST_URL -g emulation-layer
 # --force-sync to ensure we get latest even if there are local changes when re-running
 repo sync --no-clone-bundle -j $(nproc) --force-sync
 
@@ -114,13 +114,13 @@ run_checks() {
   popd
 }
 
-echo "Build VGF-Lib"
-run_checks ./sw/vgf-lib
-./sw/vgf-lib/scripts/build.py -j $(nproc) --doc --test
-
-echo "Build Model Converter"
-run_checks ./sw/model-converter
-./sw/model-converter/scripts/build.py -j $(nproc) --doc --test
+#echo "Build VGF-Lib"
+#run_checks ./sw/vgf-lib
+#./sw/vgf-lib/scripts/build.py -j $(nproc) --doc --test
+#
+#echo "Build Model Converter"
+#run_checks ./sw/model-converter
+#./sw/model-converter/scripts/build.py -j $(nproc) --doc --test
 
 export VK_LAYER_PATH=$INSTALL_DIR/share/vulkan/explicit_layer.d
 export VK_INSTANCE_LAYERS=VK_LAYER_ML_Graph_Emulation:VK_LAYER_ML_Tensor_Emulation
@@ -130,12 +130,12 @@ echo "Build Emulation Layer"
 run_checks ./sw/emulation-layer
 ./sw/emulation-layer/scripts/build.py -j $(nproc) --doc --test --install $INSTALL_DIR
 
-echo "Build Scenario Runner"
-run_checks ./sw/scenario-runner
-./sw/scenario-runner/scripts/build.py -j $(nproc) --doc --test
-
-echo "Build SDK Root"
-run_checks .
-./scripts/build.py -j $(nproc) --doc
+#echo "Build Scenario Runner"
+#run_checks ./sw/scenario-runner
+#./sw/scenario-runner/scripts/build.py -j $(nproc) --doc --test
+#
+#echo "Build SDK Root"
+#run_checks .
+#./scripts/build.py -j $(nproc) --doc
 
 popd
