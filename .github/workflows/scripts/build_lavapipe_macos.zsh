@@ -85,16 +85,16 @@ if [ -n "${LLVM_PREFIX}" ]; then
     echo "Using LLVM from ${LLVM_PREFIX}"
 fi
 
-echo "==> Installing Python Mako (user mode, PEP 668 safe)..."
+echo "==> Installing Python Mako"
 if ! pip show mako >/dev/null 2>&1; then
-    pip install --user mako
+    pip install mako
 else
     echo "pip: mako already installed"
 fi
 
 echo "==> Install python PyYAML (user mode)..."
 if ! pip show PyYAML >/dev/null 2>&1; then
-    pip install --user PyYAML
+    pip install PyYAML
 else
     echo "pip: PyYAML already installed"
 fi

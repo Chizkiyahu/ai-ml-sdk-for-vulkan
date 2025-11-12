@@ -62,9 +62,9 @@ jobs:
       - name: build lavapipe
         run: |
           .github/workflows/scripts/build_lavapipe_macos.zsh
-          echo MESA_LAVAPIPE_PREFIX="/Users/runner/.local/mesa-lavapipe" >> "$GITHUB_ENV"
-          echo VK_DRIVER_FILES="/Users/runner/.local/mesa-lavapipe/share/vulkan/icd.d/lvp_icd.aarch64.json" >> "$GITHUB_ENV"
-          echo VK_ICD_FILENAMES="/Users/runner/.local/mesa-lavapipe/share/vulkan/icd.d/lvp_icd.aarch64.json" >> "$GITHUB_ENV"
+          echo MESA_LAVAPIPE_PREFIX="$HOME/.local/mesa-lavapipe" >> "$GITHUB_ENV"
+          echo VK_DRIVER_FILES="$HOME/.local/mesa-lavapipe/share/vulkan/icd.d/lvp_icd.aarch64.json" >> "$GITHUB_ENV"
+          echo VK_ICD_FILENAMES="$HOME/.local/mesa-lavapipe/share/vulkan/icd.d/lvp_icd.aarch64.json" >> "$GITHUB_ENV"
 
       - name: Verify Vulkan installation
         run: |
