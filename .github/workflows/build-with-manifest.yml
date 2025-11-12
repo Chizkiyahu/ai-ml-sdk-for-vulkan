@@ -86,9 +86,4 @@ jobs:
           echo "$(brew --prefix llvm@14)/bin" >> "$GITHUB_PATH"
 
       - name: Clone repositories and build
-        env:
-          VMEL_GRAPH_SEVERITY: debug
-          VMEL_TENSOR_SEVERITY: debug
-          VMEL_COMMON_SEVERITY: debug
-          VK_LOADER_DEBUG: all
         run: .github/workflows/scripts/ci_build.sh
