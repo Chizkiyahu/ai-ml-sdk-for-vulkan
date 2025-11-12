@@ -1,4 +1,5 @@
 #!/usr/bin/env pwsh
+
 # SPDX-FileCopyrightText: Copyright 2025 Arm Limited and/or its affiliates <open-source-office@arm.com>
 # SPDX-License-Identifier: Apache-2.0
 
@@ -247,7 +248,7 @@ try {
     $srArgs = @(
         "./sw/scenario-runner/scripts/build.py",
         "-j",
-        $cores,
+        $cores
     )
     if ($SrElTestOpt) {
         $srArgs += $SrElTestOpt
@@ -256,7 +257,7 @@ try {
 
     Write-Host "Build SDK Root"
     Run-Checks "."
-    python "./scripts/build.py" -j $cores --doc
+    python "./scripts/build.py" -j $cores
 }
 finally {
     Pop-Location
