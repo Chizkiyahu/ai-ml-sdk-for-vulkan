@@ -78,16 +78,23 @@ brew_install_if_needed vulkan-loader
 brew_install_if_needed vulkan-tools
 brew_install_if_needed vulkan-validationlayers
 
-echo "==> Installing Python Mako..."
-if ! pip3 show mako >/dev/null 2>&1; then
-    pip3 install mako
+# Make sure llvm-config and llvm-ar are on PATH (llvm is keg-only in Homebrew)
+LLVM_PREFIX="$(brew --prefix llvm 2>/dev/null || true)"
+if [ -n "${LLVM_PREFIX}" ]; then
+    export PATH="${LLVM_PREFIX}/bin:${PATH}"
+    echo "Using LLVM from ${LLVM_PREFIX}"
+fi
+
+echo "==> Installing Python Mako (user mode, PEP 668 safe)..."
+if ! pip show mako >/dev/null 2>&1; then
+    pip install --user mako
 else
     echo "pip: mako already installed"
 fi
 
-echo "==> Install python PyYAML "
-if ! pip3 show PyYAML >/dev/null 2>&1; then
-    pip3 install PyYAML
+echo "==> Install python PyYAML (user mode)..."
+if ! pip show PyYAML >/dev/null 2>&1; then
+    pip install --user PyYAML
 else
     echo "pip: PyYAML already installed"
 fi
