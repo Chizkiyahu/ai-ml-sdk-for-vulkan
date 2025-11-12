@@ -63,6 +63,9 @@ jobs:
         run: |
           pip install PyYAML
           .github/workflows/scripts/build_lavapipe_macos.zsh
+          echo MESA_LAVAPIPE_PREFIX="/Users/runner/.local/mesa-lavapipe" >> "$GITHUB_ENV"
+          echo VK_DRIVER_FILES="/Users/runner/.local/mesa-lavapipe/share/vulkan/icd.d/lvp_icd.aarch64.json" >> "$GITHUB_ENV"
+          echo VK_ICD_FILENAMES="/Users/runner/.local/mesa-lavapipe/share/vulkan/icd.d/lvp_icd.aarch64.json" >> "$GITHUB_ENV"
 
 #      - name: Install Vulkan SDK
 #        uses: jakoch/install-vulkan-sdk-action@v1
@@ -83,9 +86,7 @@ jobs:
 
       - name: Verify Vulkan installation
         run: |
-          vulkaninfo
-
-
+          vulkaninfo | grep -E 'driverName|deviceName|apiVersion'
 
       - name: Install Python dependencies
         run: |
