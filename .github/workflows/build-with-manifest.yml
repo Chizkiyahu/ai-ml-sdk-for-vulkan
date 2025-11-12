@@ -54,13 +54,21 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-      - name: Install Vulkan SDK
-        uses: jakoch/install-vulkan-sdk-action@v1
-
-      - name: Configure Vulkan env
+      - name: build lavapipe
         run: |
-           ls -l /Users/runner/lavapipe
+          .github/workflows/scripts/build_lavapipe_macos.zsh
+
+#      - name: Install Vulkan SDK
+#        uses: jakoch/install-vulkan-sdk-action@v1
+#
+#      - name: Configure Vulkan env
+#        run: |
+#           ls -l /Users/runner/lavapipe
 #          echo "VULKAN_SDK=$VULKAN_SDK"
 #          echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
 #          ICD_JSON="$(echo "$HOME/lavapipe"/share/vulkan/icd.d/*.json | awk '{print $1}')"
@@ -76,10 +84,7 @@ jobs:
         run: |
           vulkaninfo
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+
 
       - name: Install Python dependencies
         run: |
