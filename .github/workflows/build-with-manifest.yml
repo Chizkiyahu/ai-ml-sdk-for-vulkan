@@ -68,7 +68,7 @@ jobs:
 
       - name: Verify Vulkan installation
         run: |
-          vulkaninfo | grep -E 'driverName|deviceName|apiVersion'
+          vulkaninfo 
 
       - name: Install Python dependencies
         run: |
