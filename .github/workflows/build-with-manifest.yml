@@ -71,6 +71,19 @@ jobs:
           uses: jakoch/install-vulkan-sdk-action@v1
           with:
             install_runtime: true
+            install_swiftshader: true
+
+        - name: read reg HKLM\SOFTWARE\Khronos\Vulkan\Drivers
+          shell: pwsh
+          run: |
+              $regPath = "HKLM:\SOFTWARE\Khronos\Vulkan\Drivers"
+              Write-Host "Reading Vulkan ICDs from registry path: $regPath"
+              Get-ChildItem -Path $regPath | ForEach-Object {
+              $name = $_.PSChildName
+              $value = (Get-ItemProperty -Path $regPath -Name $name).$name
+              Write-Host "ICD Name: $name"
+              Write-Host "ICD Path: $value"
+              }
 
         - name: Run vulkaninfo after SDK install
           shell: pwsh
