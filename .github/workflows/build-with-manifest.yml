@@ -60,16 +60,17 @@ jobs:
 
       - name: Configure Vulkan env
         run: |
-          echo "VULKAN_SDK=$VULKAN_SDK"
-          echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
-          ICD_JSON="$(echo "$HOME/lavapipe"/share/vulkan/icd.d/*.json | awk '{print $1}')"
-          echo "VK_ICD_FILENAMES=$ICD_JSON" >> "$GITHUB_ENV"
-          export VK_LAYER_PATH="$VULKAN_SDK/macOS/share/vulkan/explicit_layer.d"
-          # Make the env visible to later steps
-          {
-            echo "VK_ICD_FILENAMES=$VK_ICD_FILENAMES"
-            echo "VK_LAYER_PATH=$VK_LAYER_PATH"
-          } >> $GITHUB_ENV
+          echo ls -l %HOME/lavapipe
+#          echo "VULKAN_SDK=$VULKAN_SDK"
+#          echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
+#          ICD_JSON="$(echo "$HOME/lavapipe"/share/vulkan/icd.d/*.json | awk '{print $1}')"
+#          echo "VK_ICD_FILENAMES=$ICD_JSON" >> "$GITHUB_ENV"
+#          export VK_LAYER_PATH="$VULKAN_SDK/macOS/share/vulkan/explicit_layer.d"
+#          # Make the env visible to later steps
+#          {
+#            echo "VK_ICD_FILENAMES=$VK_ICD_FILENAMES"
+#            echo "VK_LAYER_PATH=$VK_LAYER_PATH"
+#          } >> $GITHUB_ENV
 
       - name: Verify Vulkan installation
         run: |
