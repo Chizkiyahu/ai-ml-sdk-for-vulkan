@@ -94,6 +94,16 @@ jobs:
 #            Copy-Item "$chocoBin\xml.exe" "$chocoBin\xmlstarlet.exe" -Force
 #            & "$chocoBin\xmlstarlet.exe" --version
 
+        - name: Configure Windows crash dumps
+          shell: pwsh
+          run: |
+            $DumpFolder = "$env:GITHUB_WORKSPACE\CrashDumps"
+            New-Item -ItemType Directory -Path $DumpFolder -Force | Out-Null
+            reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /f
+            reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpFolder /t REG_EXPAND_SZ /d "$DumpFolder" /f
+            reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpType /t REG_DWORD /d 2 /f
+            reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpCount /t REG_DWORD /d 10 /f
+
         - name: Run CI build script
           shell: bash
           run: |
@@ -124,3 +134,11 @@ jobs:
           with:
             name: ml-sdk-windows-build
             path: ${{ env.INSTALL_DIR }}
+
+        - name: upload crash dumps
+          if: always()
+          uses: actions/upload-artifact@v4
+          with:
+            name: windows-crash-dumps
+            path: ${{ github.workspace }}/CrashDumps
+            if-no-files-found: ignore
