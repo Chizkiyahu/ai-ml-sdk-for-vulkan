@@ -65,7 +65,7 @@ jobs:
             install_runtime: true
             install_lavapipe: true
 
-        - name: set Vulkan registry for SwiftShader ICD
+        - name: set Vulkan registry for lavapipe ICD
           shell: pwsh
           run: |
             ls "C:\lavapipe\share\vulkan\icd.d\"
@@ -81,30 +81,16 @@ jobs:
           run: |
             python -m pip install --upgrade pip
             pip install -r ./requirements.txt
-#            pip install -r ./tooling-requirements.txt
 
         - name: Install tools with Chocolatey
           shell: pwsh
           run: |
-            choco install -y graphviz
-#           choco install -y doxygen.install xmlstarlet graphviz
+            choco install -y xmlstarlet
             
-#            $chocoBin = "C:\ProgramData\chocolatey\bin"
-#            $chocoBin | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
-#            Copy-Item "$chocoBin\xml.exe" "$chocoBin\xmlstarlet.exe" -Force
-#            & "$chocoBin\xmlstarlet.exe" --version
-
-        - name: Configure Windows crash dumps
-          shell: pwsh
-          run: |
-            $DumpFolder = "$env:GITHUB_WORKSPACE\CrashDumps"
-            New-Item -ItemType Directory -Path $DumpFolder -Force | Out-Null
-            reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /f
-            reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpFolder /t REG_EXPAND_SZ /d "$DumpFolder" /f
-            reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpType /t REG_DWORD /d 2 /f
-            reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpCount /t REG_DWORD /d 10 /f
-            reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps\ml_emulation_tests.exe" /f
-            reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps\ml_emulation_tests.exe" /v DumpType /t REG_DWORD /d 2 /f
+            $chocoBin = "C:\ProgramData\chocolatey\bin"
+            $chocoBin | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+            Copy-Item "$chocoBin\xml.exe" "$chocoBin\xmlstarlet.exe" -Force
+            & "$chocoBin\xmlstarlet.exe" --version
 
 
         - name: Run CI build script
@@ -129,19 +115,3 @@ jobs:
 
             # run your CI script
             .github/workflows/scripts/ci_build.sh
-
-
-        - name: upload build artifacts
-          if: always()
-          uses: actions/upload-artifact@v4
-          with:
-            name: ml-sdk-windows-build
-            path: ${{ env.INSTALL_DIR }}
-
-        - name: upload crash dumps
-          if: always()
-          uses: actions/upload-artifact@v4
-          with:
-            name: windows-crash-dumps
-            path: ${{ github.workspace }}/CrashDumps
-            if-no-files-found: ignore
