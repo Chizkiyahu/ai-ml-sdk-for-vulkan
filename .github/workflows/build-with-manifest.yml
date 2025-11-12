@@ -61,6 +61,7 @@ jobs:
 
       - name: build lavapipe
         run: |
+          pip install PyYAML
           .github/workflows/scripts/build_lavapipe_macos.zsh
 
 #      - name: Install Vulkan SDK
