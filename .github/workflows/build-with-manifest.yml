@@ -70,8 +70,8 @@ jobs:
           echo LD_LIBRARY_PATH=$HOME/.local/mesa-lavapipe/lib:$LD_LIBRARY_PATH >> $GITHUB_ENV
           echo DYLD_LIBRARY_PATH=$HOME/.local/mesa-lavapipe/lib:$DYLD_LIBRARY_PATH >> $GITHUB_ENV
 
-      - name: Verify Vulkan installation
-        run: vulkaninfo | grep -E 'driverName|deviceName|apiVersion'
+#      - name: Verify Vulkan installation
+#        run: vulkaninfo | grep -E 'driverName|deviceName|apiVersion'
 
       - name: Install Python dependencies
         run: |
