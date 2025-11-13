@@ -152,8 +152,8 @@ try {
 #    Write-Host "Build Model Converter"
 #    python "./sw/model-converter/scripts/build.py" -j $cores --test
 
-#    Write-Host "Build Emulation Layer"
-#    python "./sw/emulation-layer/scripts/build.py" -j $cores --test --install $InstallDir
+    Write-Host "Build Emulation Layer"
+    python "./sw/emulation-layer/scripts/build.py" -j $cores --test --install $InstallDir
 
     Write-Host "Build Scenario Runner"
     python "./sw/scenario-runner/scripts/build.py" -j $cores --test
