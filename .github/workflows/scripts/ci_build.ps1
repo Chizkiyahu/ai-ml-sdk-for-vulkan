@@ -63,7 +63,7 @@ $InstallDir = (Resolve-Path $InstallDir).Path
 
 Push-Location $RepoDir
 try {
-    python $RepoScriptPath init --no-repo-verify -u $ManifestUrl -g emulation-layer
+    python $RepoScriptPath init --no-repo-verify -u $ManifestUrl -g scenario-runner
     python $RepoScriptPath sync --no-repo-verify --no-clone-bundle -j $cores
 
     # Local manifests
@@ -141,6 +141,10 @@ try {
     New-ItemProperty -Path $path -Name "$InstallDir\bin" -Value 0 -PropertyType DWord -Force | Out-Null
 
     $env:VK_INSTANCE_LAYERS = "VK_LAYER_ML_Graph_Emulation:VK_LAYER_ML_Tensor_Emulation"
+    $env:VMEL_GRAPH_SEVERITY="debug"
+    $env:VMEL_TENSOR_SEVERITY="debug"
+    $env:VMEL_COMMON_SEVERITY="debug"
+    $env:VK_LOADER_DEBUG="all"
 
 #    Write-Host "Build VGF-Lib"
 #    python "./sw/vgf-lib/scripts/build.py" -j $cores --test
@@ -148,11 +152,11 @@ try {
 #    Write-Host "Build Model Converter"
 #    python "./sw/model-converter/scripts/build.py" -j $cores --test
 
-    Write-Host "Build Emulation Layer"
-    python "./sw/emulation-layer/scripts/build.py" -j $cores --test --install $InstallDir
+#    Write-Host "Build Emulation Layer"
+#    python "./sw/emulation-layer/scripts/build.py" -j $cores --test --install $InstallDir
 
-#    Write-Host "Build Scenario Runner"
-#    python "./sw/scenario-runner/scripts/build.py" -j $cores --test
+    Write-Host "Build Scenario Runner"
+    python "./sw/scenario-runner/scripts/build.py" -j $cores --test
 #
 #    Write-Host "Build SDK Root"
 #    python "./scripts/build.py" -j $cores
