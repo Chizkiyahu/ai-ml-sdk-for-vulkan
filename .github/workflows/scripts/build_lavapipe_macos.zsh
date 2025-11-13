@@ -66,14 +66,8 @@ fi
 
 echo "==> Installing Mesa dependencies..."
 brew_install_if_needed meson
-brew_install_if_needed ninja
-brew_install_if_needed pkgconf
-brew_install_if_needed python
 brew_install_if_needed llvm
 brew_install_if_needed libclc
-brew_install_if_needed libpng
-brew_install_if_needed zstd
-brew_install_if_needed git
 brew_install_if_needed vulkan-loader
 brew_install_if_needed vulkan-tools
 brew_install_if_needed vulkan-validationlayers
@@ -102,7 +96,7 @@ fi
 echo "==> Fetching Mesa source: ${MESA_SRC_DIR}"
 if [ ! -d "${MESA_SRC_DIR}" ]; then
     mkdir -p "$(dirname "${MESA_SRC_DIR}")"
-    git clone https://gitlab.freedesktop.org/mesa/mesa.git "${MESA_SRC_DIR}"
+    git clone https://gitlab.freedesktop.org/mesa/mesa.git "${MESA_SRC_DIR}" > /dev/null
 fi
 
 echo "==> Checking out Mesa tag mesa-25.2.5"
