@@ -53,7 +53,7 @@ pushd $REPO_DIR
 repo init -u $MANIFEST_URL
 # --force-sync to ensure we get latest even if there are local changes when re-running
 repo sync --no-clone-bundle -j $(nproc) --force-sync
-
+exit 0
 mkdir -p .repo/local_manifests
 
 if [ -n "$OVERRIDES" ]; then
