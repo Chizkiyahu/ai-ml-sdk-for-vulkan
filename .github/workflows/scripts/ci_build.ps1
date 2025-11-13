@@ -63,7 +63,7 @@ $InstallDir = (Resolve-Path $InstallDir).Path
 
 Push-Location $RepoDir
 try {
-    python $RepoScriptPath init --no-repo-verify -u $ManifestUrl -g scenario-runner
+    python $RepoScriptPath init --no-repo-verify -u $ManifestUrl
     python $RepoScriptPath sync --no-repo-verify --no-clone-bundle -j $cores
 
     # Local manifests
