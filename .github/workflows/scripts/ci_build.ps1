@@ -142,7 +142,7 @@ try {
     $env:PATH = "$InstallDir;$InstallDir\bin;$InstallDir\lib;$env:PATH"
 
 
-    $env:VK_INSTANCE_LAYERS = "VK_LAYER_ML_Graph_Emulation:VK_LAYER_ML_Tensor_Emulation"
+    $env:VK_INSTANCE_LAYERS = "VK_LAYER_ML_Graph_Emulation;VK_LAYER_ML_Tensor_Emulation"
     $env:VMEL_GRAPH_SEVERITY="debug"
     $env:VMEL_TENSOR_SEVERITY="debug"
     $env:VMEL_COMMON_SEVERITY="debug"
