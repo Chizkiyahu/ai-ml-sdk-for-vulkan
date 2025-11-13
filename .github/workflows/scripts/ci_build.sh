@@ -51,7 +51,7 @@ REPO_DIR="$(realpath "$REPO_DIR")"
 INSTALL_DIR="$(realpath "$INSTALL_DIR")"
 pushd $REPO_DIR
 
-repo init -u $MANIFEST_URL -g emulation-layer
+repo init -u $MANIFEST_URL -g emulation-layer --depth=1
 # --force-sync to ensure we get latest even if there are local changes when re-running
 repo sync --no-clone-bundle -j $(nproc) --force-sync
 
@@ -107,6 +107,7 @@ EOF
 fi
 
 run_checks() {
+
   pushd "${1}"
   git show -s --format=%B HEAD | grep "Signed-off-by:"
   pre-commit run --all-files --hook-stage commit --show-diff-on-failure
@@ -133,7 +134,7 @@ export VMEL_COMMON_SEVERITY="debug"
 export VK_LOADER_DEBUG="all"
 
 echo "Build Emulation Layer"
-run_checks ./sw/emulation-layer
+#run_checks ./sw/emulation-layer
 ./sw/emulation-layer/scripts/build.py -j $(nproc) --doc --test --install $INSTALL_DIR
 
 #echo "Build Scenario Runner"

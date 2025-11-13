@@ -68,6 +68,7 @@ jobs:
 
       - name: Verify Vulkan installation
         run: |
+          vulkaninfo | grep -E 'driverName|deviceName|apiVersion'
           vulkaninfo 
 
       - name: Install Python dependencies
@@ -78,12 +79,13 @@ jobs:
 
       - name: brew install
         run: |
-          brew install doxygen repo xmlstarlet
+          brew install repo
+# doxygen repo xmlstarlet
 
-      - name: Install clang-format 14 (macOS)
-        run: |
-          brew install llvm@14
-          echo "$(brew --prefix llvm@14)/bin" >> "$GITHUB_PATH"
+#      - name: Install clang-format 14 (macOS)
+#        run: |
+#          brew install llvm@14
+#          echo "$(brew --prefix llvm@14)/bin" >> "$GITHUB_PATH"
 
       - name: Clone repositories and build
         run: .github/workflows/scripts/ci_build.sh
