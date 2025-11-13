@@ -8,6 +8,7 @@ set -o errexit
 set -o pipefail
 set -o errtrace
 set -o nounset
+set -o xtrace
 
 usage() {
   echo "Usage: $(basename "$0")"
@@ -52,76 +53,7 @@ INSTALL_DIR="$(realpath "$INSTALL_DIR")"
 pushd $REPO_DIR
 
 repo init -u $MANIFEST_URL -g emulation-layer --depth=1
-# --force-sync to ensure we get latest even if there are local changes when re-running
 repo sync --no-clone-bundle -j $(nproc) --force-sync
-
-mkdir -p .repo/local_manifests
-
-if [ -n "$OVERRIDES" ]; then
-  MANIFEST_XML=$(repo manifest -r)
-
-  # Resolve each project's path from the active manifest and re-sync it
-  for NAME in $(echo "$OVERRIDES" | jq -r 'keys[]'); do
-    REVISION=$(echo "$OVERRIDES" | jq -r --arg name "$NAME" '.[$name]')
-
-    PROJECT_PATH=$(echo "$MANIFEST_XML" | xmlstarlet sel -t -v "//project[@name='${NAME}']/@path")
-    if [ -z "$PROJECT_PATH" ]; then
-      echo "ERROR: project path for $NAME not found in manifest"
-      exit 1
-    fi
-
-    rm -f .repo/local_manifests/override.xml
-    cat > .repo/local_manifests/override.xml <<EOF
-<manifest>
-  <project name="${NAME}" revision="${REVISION}" remote="github"/>
-</manifest>
-EOF
-
-    echo "Syncing $NAME ($PROJECT_PATH)"
-    repo sync -j"$(nproc)" --force-sync "$PROJECT_PATH"
-  done
-
-elif [ -n "$CHANGED_REPO" ]; then
-  if [ -z "$CHANGED_SHA" ]; then
-    echo "CHANGED_REPO is set but CHANGED_SHA is empty"
-    exit 1
-  fi
-
-  # Find project path for changed repo
-  PROJECT_PATH=$(repo manifest -r | xmlstarlet sel -t -v "//project[@name='${CHANGED_REPO}']/@path")
-  if [ -z "$PROJECT_PATH" ]; then
-    echo "Could not find project path for ${CHANGED_REPO} in manifest"
-    exit 1
-  fi
-  echo "Changed project path: $PROJECT_PATH"
-
-  # Create a local manifest override to pin the changed repo to the exact SHA
-  cat > .repo/local_manifests/override.xml <<EOF
-<manifest>
-  <project name="${CHANGED_REPO}" revision="${CHANGED_SHA}" remote="github"/>
-</manifest>
-EOF
-
-  # Re-sync the changed project to the specified SHA
-  repo sync -j $(nproc) --force-sync "$PROJECT_PATH"
-fi
-
-run_checks() {
-
-  pushd "${1}"
-  git show -s --format=%B HEAD | grep "Signed-off-by:"
-  pre-commit run --all-files --hook-stage commit --show-diff-on-failure
-  pre-commit run --all-files --hook-stage push --show-diff-on-failure
-  popd
-}
-
-#echo "Build VGF-Lib"
-#run_checks ./sw/vgf-lib
-#./sw/vgf-lib/scripts/build.py -j $(nproc) --doc --test
-#
-#echo "Build Model Converter"
-#run_checks ./sw/model-converter
-#./sw/model-converter/scripts/build.py -j $(nproc) --doc --test
 
 export VK_LAYER_PATH=$INSTALL_DIR/share/vulkan/explicit_layer.d
 export VK_INSTANCE_LAYERS=VK_LAYER_ML_Graph_Emulation:VK_LAYER_ML_Tensor_Emulation
@@ -132,14 +64,6 @@ export VK_LOADER_DEBUG="all"
 
 echo "Build Emulation Layer"
 #run_checks ./sw/emulation-layer
-./sw/emulation-layer/scripts/build.py -j $(nproc) --doc --test --install $INSTALL_DIR
-
-#echo "Build Scenario Runner"
-#run_checks ./sw/scenario-runner
-#./sw/scenario-runner/scripts/build.py -j $(nproc) --doc --test
-#
-#echo "Build SDK Root"
-#run_checks .
-#./scripts/build.py -j $(nproc) --doc
+./sw/emulation-layer/scripts/build.py -j $(nproc)  --test --install $INSTALL_DIR
 
 popd
