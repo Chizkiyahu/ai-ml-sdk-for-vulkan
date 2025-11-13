@@ -60,6 +60,7 @@ jobs:
           python-version: '3.11'
 
       - name: build lavapipe
+        id: build_lavapipe
         run: |
           .github/workflows/scripts/build_lavapipe_macos.zsh
           echo MESA_LAVAPIPE_PREFIX="$HOME/.local/mesa-lavapipe" >> "$GITHUB_ENV"
@@ -68,6 +69,7 @@ jobs:
 
       - name: Verify Vulkan installation
         run: |
+          
           vulkaninfo | grep -E 'driverName|deviceName|apiVersion'
           vulkaninfo 
 
@@ -88,4 +90,9 @@ jobs:
 #          echo "$(brew --prefix llvm@14)/bin" >> "$GITHUB_PATH"
 
       - name: Clone repositories and build
-        run: .github/workflows/scripts/ci_build.sh
+        run: |
+          ln -s "$HOME/.local/mesa-lavapipe/lib/libvulkan_lvp.dylib" "$HOME/.local/mesa-lavapipe/lib/libvulkan.dylib"
+          export LD_LIBRARY_PATH="$HOME/.local/mesa-lavapipe/lib:$LD_LIBRARY
+          export DYLD_LIBRARY_PATH="$HOME/.local/mesa-lavapipe/lib:$DYLD_LIBRARY_PATH"
+          .github/workflows/scripts/ci_build.sh
+        
