@@ -80,6 +80,9 @@ jobs:
 #          BREW_VK_PREFIX="$(brew --prefix vulkan-loader)"
 #          echo "DYLD_LIBRARY_PATH=$INSTALL_DIR/lib:$BREW_VK_PREFIX/lib:\$DYLD_LIBRARY_PATH" >> "$GITHUB_ENV"
 
+      - name: Install vulkaninfo
+        run: |
+          brew install vulkan-tools
 
       - name: Verify Vulkan installation
         run: vulkaninfo | grep -E 'driverName|deviceName|apiVersion'
