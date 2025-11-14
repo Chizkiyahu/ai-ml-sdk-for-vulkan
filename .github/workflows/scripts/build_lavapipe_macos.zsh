@@ -70,7 +70,7 @@ brew_install_if_needed llvm
 brew_install_if_needed libclc
 brew_install_if_needed vulkan-loader
 brew_install_if_needed vulkan-tools
-brew_install_if_needed vulkan-validationlayers
+#brew_install_if_needed vulkan-validationlayers
 
 # Make sure llvm-config and llvm-ar are on PATH (llvm is keg-only in Homebrew)
 LLVM_PREFIX="$(brew --prefix llvm 2>/dev/null || true)"
