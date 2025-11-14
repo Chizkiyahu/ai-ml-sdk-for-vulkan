@@ -85,7 +85,13 @@ jobs:
           brew install vulkan-tools
 
       - name: Verify Vulkan installation
-        run: vulkaninfo | grep -E 'driverName|deviceName|apiVersion'
+        run: |
+          export VMEL_GRAPH_SEVERITY="debug"
+          export VMEL_TENSOR_SEVERITY="debug"
+          export VMEL_COMMON_SEVERITY="debug"
+          export VK_LOADER_DEBUG="all"
+
+          vulkaninfo | grep -E 'driverName|deviceName|apiVersion'
 
       - name: Install Python dependencies
         run: |
