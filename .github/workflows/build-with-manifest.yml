@@ -58,14 +58,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-
-      - name: Setup Vulkan SDK + SwiftShader
-        id: vulkan
-        uses: NcStudios/VulkanCI@v1.2
-        with:
-          # Pick any supported SDK version (this is the default one)
-          sdkVersion: 1.4.309.0
 #      - name: build lavapipe
 #        id: build_lavapipe
 #        run: |
@@ -83,6 +75,14 @@ jobs:
       - name: Install vulkaninfo
         run: |
           brew install vulkan-tools
+
+      - name: Setup Vulkan SDK + SwiftShader
+        id: vulkan
+        uses: NcStudios/VulkanCI@v1.2
+        with:
+          sdkVersion: 1.4.309.0
+
+
 
       - name: Verify Vulkan installation
         run: |
