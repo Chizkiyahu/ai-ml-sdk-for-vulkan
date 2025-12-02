@@ -82,8 +82,6 @@ jobs:
         with:
           sdkVersion: 1.4.309.0
 
-
-
       - name: Verify Vulkan installation
         run: |
           export VMEL_GRAPH_SEVERITY="debug"
