@@ -57,9 +57,12 @@ fi
 
 export VK_LAYER_PATH=$INSTALL_DIR/share/vulkan/explicit_layer.d
 export VK_INSTANCE_LAYERS=VK_LAYER_ML_Graph_Emulation:VK_LAYER_ML_Tensor_Emulation
-export VK_DRIVER_FILES=/Users/chizkiyahu/work_code/swiftshader/build/Darwin/vk_swiftshader_icd.json
-export DYLD_LIBRARY_PATH="/Users/chizkiyahu/work_code/arm/install/lib::${DYLD_LIBRARY_PATH:-}"
-export LD_LIBRARY_PATH="$INSTALL_DIR:$INSTALL_DIR/lib:${LD_LIBRARY_PATH:-}"
+export VK_DRIVER_FILES=/opt/homebrew/Cellar/molten-vk/1.4.0/etc/vulkan/icd.d/MoltenVK_icd.json
+export INSTALL_DIR="/Users/chizkiyahu/work_code/install"
+mkdir -p $INSTALL_DIR
+export DYLD_LIBRARY_PATH="/Users/chizkiyahu/work_code/install/lib:${DYLD_LIBRARY_PATH:-}"
+echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
+#export LD_LIBRARY_PATH="$INSTALL_DIR:$INSTALL_DIR/lib:${LD_LIBRARY_PATH:-}"
 export VMEL_GRAPH_SEVERITY="debug"
 export VMEL_TENSOR_SEVERITY="debug"
 export VMEL_COMMON_SEVERITY="debug"
@@ -67,6 +70,27 @@ export VK_LOADER_DEBUG="all"
 #vulkaninfo | grep -E 'driverName|deviceName|apiVersion'
 echo "Build Emulation Layer"
 #run_checks ./sw/emulation-layer
-./sw/emulation-layer/scripts/build.py -j $(nproc)  --test  # --install $INSTALL_DIR
+./sw/emulation-layer/scripts/build.py -j $(nproc) --install $INSTALL_DIR
 
+LAYER_DIR="$INSTALL_DIR/share/vulkan/explicit_layer.d"
+GRAPH_JSON="$LAYER_DIR/VkLayer_Graph.json"
+TENSOR_JSON="$LAYER_DIR/VkLayer_Tensor.json"
+
+GRAPH_LIB="$INSTALL_DIR/lib/libVkLayer_Graph.dylib"
+TENSOR_LIB="$INSTALL_DIR/lib/libVkLayer_Tensor.dylib"
+
+echo "Updating library_path in:"
+echo "  $GRAPH_JSON"
+echo "  $TENSOR_JSON"
+echo ""
+
+sed -i '' \
+    "s|\"library_path\": \"libVkLayer_Graph.dylib\"|\"library_path\": \"$GRAPH_LIB\"|" \
+    "$GRAPH_JSON"
+
+sed -i '' \
+    "s|\"library_path\": \"libVkLayer_Tensor.dylib\"|\"library_path\": \"$TENSOR_LIB\"|" \
+    "$TENSOR_JSON"
+
+./sw/emulation-layer/scripts/build.py -j $(nproc) --test
 #popd
