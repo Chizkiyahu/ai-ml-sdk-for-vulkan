@@ -60,8 +60,8 @@ export VK_INSTANCE_LAYERS=VK_LAYER_ML_Graph_Emulation:VK_LAYER_ML_Tensor_Emulati
 export VK_DRIVER_FILES=/opt/homebrew/Cellar/molten-vk/1.4.0/etc/vulkan/icd.d/MoltenVK_icd.json
 export INSTALL_DIR="/Users/chizkiyahu/work_code/install"
 mkdir -p $INSTALL_DIR
-export DYLD_LIBRARY_PATH="/Users/chizkiyahu/work_code/install/lib:${DYLD_LIBRARY_PATH:-}"
-echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
+#export DYLD_LIBRARY_PATH="/Users/chizkiyahu/work_code/install/lib:${DYLD_LIBRARY_PATH:-}"
+#echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
 #export LD_LIBRARY_PATH="$INSTALL_DIR:$INSTALL_DIR/lib:${LD_LIBRARY_PATH:-}"
 export VMEL_GRAPH_SEVERITY="debug"
 export VMEL_TENSOR_SEVERITY="debug"
