@@ -5,6 +5,7 @@
 name: Trigger manifest build
 
 on:
+  push:
   workflow_dispatch:
   pull_request:
     branches:

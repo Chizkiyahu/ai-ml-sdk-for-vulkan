@@ -44,6 +44,10 @@ jobs:
       options: --user root
 
     steps:
+      - name: debug github action info
+        run: |
+          echo ${{ toJson(github) }}
+
       - &validate-inputs
         name: Validate workflow_call inputs
         if: ${{ github.event_name == 'workflow_call' }}
@@ -81,6 +85,9 @@ jobs:
     runs-on: macos-latest
 
     steps:
+      - name: debug github action info
+        run: |
+          echo ${{ toJson(github) }}
       - *validate-inputs
       - *checkout
       - &setup-python
