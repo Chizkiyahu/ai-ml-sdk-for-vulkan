@@ -46,7 +46,7 @@ jobs:
     steps:
       - name: debug github action info
         run: |
-          echo ${{ toJson(github) }}
+          echo "${{ toJson(github) }}"
 
       - &validate-inputs
         name: Validate workflow_call inputs
@@ -87,7 +87,7 @@ jobs:
     steps:
       - name: debug github action info
         run: |
-          echo ${{ toJson(github) }}
+          echo "${{ toJson(github) }}"
       - *validate-inputs
       - *checkout
       - &setup-python
